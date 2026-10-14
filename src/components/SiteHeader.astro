@@ -1,0 +1,28 @@
+---
+import { es } from "../i18n/es";
+
+const [brandName, brandSuffix] = es.brand.wordmark.split(" · ");
+---
+
+<header class="border-b border-rule">
+  <div class="mx-auto flex max-w-2xl items-center justify-between px-5 py-4">
+    <a
+      href="/"
+      aria-label={es.brand.wordmark}
+      class="group flex items-baseline gap-1.5 text-ink no-underline"
+    >
+      <span aria-hidden="true" class="font-display text-xl font-semibold tracking-tight">
+        {brandName}
+      </span>
+      <span aria-hidden="true" class="text-accent">
+        ·
+      </span>
+      <span
+        aria-hidden="true"
+        class="font-display text-xl text-ink-muted italic transition-colors group-hover:text-ink"
+      >
+        {brandSuffix}
+      </span>
+    </a>
+  </div>
+</header>

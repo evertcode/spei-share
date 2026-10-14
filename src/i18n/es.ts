@@ -2,8 +2,16 @@ export const es = {
   app: {
     title: "SPEI Share",
   },
+  brand: {
+    wordmark: "SPEI · share",
+  },
+  footer: {
+    privacy: "Tus datos viajan dentro del enlace, nunca en un servidor.",
+  },
   home: {
+    eyebrow: "Transferencias SPEI",
     heading: "Comparte tus datos SPEI",
+    headingEmphasis: "SPEI",
     subheading:
       "Crea un enlace para que te transfieran sin errores. Tus datos no se guardan en ningún servidor.",
   },

@@ -1,1 +1,67 @@
 @import "tailwindcss";
+
+/* Palette: warm paper and ink. Components use the semantic tokens below, never raw colors. */
+:root {
+  --paper: #f4efe6;
+  --paper-raised: #fbf8f2;
+  --ink: #1c1a17;
+  --ink-muted: #6b645a;
+  --rule: #d9d0c1;
+  --accent: #2f5d50;
+  --accent-ink: #f4efe6;
+  --danger: #a23b2a;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-paper-raised: var(--paper-raised);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-rule: var(--rule);
+  --color-accent: var(--accent);
+  --color-accent-ink: var(--accent-ink);
+  --color-danger: var(--danger);
+}
+
+@theme {
+  --font-display: "Newsreader Variable", Georgia, "Times New Roman", serif;
+  --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", monospace;
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+  }
+
+  body {
+    background-color: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+    font-feature-settings: "ss01", "cv11";
+  }
+
+  ::selection {
+    background-color: color-mix(in srgb, var(--accent) 22%, transparent);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .font-mono {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "zero";
+  }
+}
+
+/* Small caps label used for eyebrows and field labels. */
+@utility eyebrow {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}

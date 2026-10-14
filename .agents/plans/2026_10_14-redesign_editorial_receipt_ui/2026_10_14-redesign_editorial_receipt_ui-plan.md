@@ -9,6 +9,16 @@ created_by:
     name: "Claude Opus"
     version: "5.5"
     reasoning_effort: "low"
+
+implemented_by:
+  tool: "Claude Code"
+  model:
+    name: "Claude Opus"
+    version: "5.5"
+    reasoning_effort: "low"
+
+last_implementation_at: "2026-10-14T22:57:04Z"
+has_completed_all_phases: "false"
 ---
 
 # 🎯 Goal
@@ -49,27 +59,30 @@ Introduce tokens, fonts and the page shell so the home page already shows the ne
   - `@theme` color tokens: `paper`, `paper-raised`, `ink`, `ink-muted`, `rule`, `accent`, `accent-ink`, `danger` backed by CSS variables on `:root`.
   - Font tokens: `--font-display` (Newsreader Variable), `--font-sans` (Instrument Sans Variable), `--font-mono` (JetBrains Mono Variable).
   - Base styles: body background/text from tokens, `font-feature-settings` for tabular numbers on mono, selection color, focus ring style using `accent`.
+  - `eyebrow` utility (`@utility`) for small caps labels.
+  - Semantic color tokens use `@theme inline` so redefining the CSS variables (Phase 5) switches every utility.
 - Components:
-  - `SiteHeader.astro`: wordmark linking to `/`.
+  - `SiteHeader.astro`: wordmark linking to `/` (visual parts `aria-hidden`, link named by `brand.wordmark`).
   - `SiteFooter.astro`: privacy note.
   - `BaseLayout.astro`: imports fonts, renders header, `<main>`, footer.
-- Pages: `index.astro` hero with eyebrow, h1 in display serif (text unchanged) and subheading.
+- Pages: `index.astro` hero with eyebrow, h1 in display serif (text unchanged, last word `home.headingEmphasis` in accent italic) and subheading.
 - Assets: `public/favicon.svg` redesigned (ink "S" mark on paper with accent rule).
 - UI copies:
   - `brand.wordmark`: "SPEI · share"
   - `home.eyebrow`: "Transferencias SPEI"
+  - `home.headingEmphasis`: "SPEI"
   - `footer.privacy`: "Tus datos viajan dentro del enlace, nunca en un servidor."
 
 ### To-do
 
-- [ ] Add `@fontsource-variable/newsreader`, `@fontsource-variable/instrument-sans` and `@fontsource-variable/jetbrains-mono` dependencies.
-- [ ] Define color and font tokens plus base styles in `src/styles/global.css`.
-- [ ] Create `SiteHeader.astro` and `SiteFooter.astro`, wire them and the fonts into `BaseLayout.astro`.
-- [ ] Restyle the hero in `index.astro` and the heading in `ver.astro` with display serif and eyebrow.
-- [ ] Redesign `public/favicon.svg`.
-- [ ] Add new copies to `src/i18n/es.ts`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Add `@fontsource-variable/newsreader`, `@fontsource-variable/instrument-sans` and `@fontsource-variable/jetbrains-mono` dependencies.
+- [x] Define color and font tokens plus base styles in `src/styles/global.css`.
+- [x] Create `SiteHeader.astro` and `SiteFooter.astro`, wire them and the fonts into `BaseLayout.astro`.
+- [x] Restyle the hero in `index.astro` and the heading in `ver.astro` with display serif and eyebrow.
+- [x] Redesign `public/favicon.svg`.
+- [x] Add new copies to `src/i18n/es.ts`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 2: Document-like form
 
@@ -197,6 +210,6 @@ Add dark theme values and a persisted toggle without flash of the wrong theme.
 
 # ⏭️ Next step
 
-Implement Phase 1: design tokens, self-hosted fonts, header, footer, favicon and the home hero.
+Implement Phase 2: document-like form with underline fields, segmented destination control and ink submit button.
 
-Fresh ink on warm paper, designed by 🐢 💨 (Turbotuga™, [Codely](https://codely.com)'s mascot) 🖋️
+The turtle picked its paper and ink, and the first page is already printed thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜
