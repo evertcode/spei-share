@@ -9,6 +9,16 @@ created_by:
     name: "Claude Opus"
     version: "5.5"
     reasoning_effort: "low"
+
+implemented_by:
+  tool: "Claude Code"
+  model:
+    name: "Claude Opus"
+    version: "5.5"
+    reasoning_effort: "low"
+
+last_implementation_at: "2026-10-14T21:18:42Z"
+has_completed_all_phases: "false"
 ---
 
 # 🎯 Goal
@@ -56,17 +66,17 @@ Set up the tooling and deliver a home page that can be opened in the browser. No
 
 ### To-do
 
-- [ ] Initialize git repository and `.gitignore` (node_modules, dist, .astro, test reports).
-- [ ] Scaffold Astro with TypeScript strict (`astro.config.mjs`, `tsconfig.json` extending `astro/tsconfigs/strict`), static output.
-- [ ] Add Tailwind CSS integration and a global stylesheet.
-- [ ] Add ESLint (`eslint-plugin-astro`, `typescript-eslint`) and Prettier (`prettier-plugin-astro`, `prettier-plugin-tailwindcss`).
-- [ ] Add Vitest (`vitest.config.ts` using `getViteConfig` from Astro) and Playwright (`playwright.config.ts` running against `astro preview`).
-- [ ] Add npm scripts: `dev`, `build`, `preview`, `check`, `lint`, `format`, `test`, `test:e2e`, `verify`.
-- [ ] Create `BaseLayout.astro` (lang `es-MX`, meta viewport, title) and `index.astro` with heading and subheading from `src/i18n/es.ts`.
-- [ ] Create `AGENTS.md` documenting stack, folder conventions and the `npm run verify` command.
-- [ ] Add `tests/e2e/home.spec.ts`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Initialize git repository and `.gitignore` (node_modules, dist, .astro, test reports).
+- [x] Scaffold Astro with TypeScript strict (`astro.config.mjs`, `tsconfig.json` extending `astro/tsconfigs/strict`), static output.
+- [x] Add Tailwind CSS integration and a global stylesheet.
+- [x] Add ESLint (`eslint-plugin-astro`, `typescript-eslint`) and Prettier (`prettier-plugin-astro`, `prettier-plugin-tailwindcss`).
+- [x] Add Vitest (`vitest.config.ts` using `getViteConfig` from Astro) and Playwright (`playwright.config.ts` running against `astro preview`).
+- [x] Add npm scripts: `dev`, `build`, `preview`, `check`, `lint`, `format`, `test`, `test:e2e`, `verify`.
+- [x] Create `BaseLayout.astro` (lang `es-MX`, meta viewport, title) and `index.astro` with heading and subheading from `src/i18n/es.ts`.
+- [x] Create `AGENTS.md` documenting stack, folder conventions and the `npm run verify` command.
+- [x] Add `tests/e2e/home.spec.ts`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 2: Happy path: create link from CLABE and beneficiary name, view it with per-field copy
 
@@ -358,6 +368,6 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 # ⏭️ Next step
 
-Implement Phase 1: scaffold the Astro project with tooling and a navigable home page.
+Implement Phase 2: happy path to create a share link from CLABE and beneficiary name and view it with per-field copy.
 
-Sharing CLABEs at full speed with 🐢 💨 (Turbotuga™, [Codely](https://codely.com)'s mascot)
+Scaffold built, the turtle has laid the first brick on its way to the bank thanks to [Codely](https://codely.com) 🧱 🐢 💨 🏦

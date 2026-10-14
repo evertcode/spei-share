@@ -1,0 +1,22 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# logs
+npm-debug.log*
+
+# environment
+.env
+.env.*
+
+# test reports
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# os
+.DS_Store
