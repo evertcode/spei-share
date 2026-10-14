@@ -29,6 +29,14 @@ Static Astro app to create and share Mexican SPEI transfer details (CLABE, card 
 - `tests/unit/`: mirrors `src/` (`*.test.ts`).
 - `tests/e2e/`: Playwright specs (`*.spec.ts`).
 
+## Design conventions
+
+- Editorial "paper and ink" identity. Use the semantic color tokens from `src/styles/global.css` (`paper`, `paper-raised`, `ink`, `ink-muted`, `rule`, `accent`, `accent-ink`, `danger`), never raw Tailwind palette colors.
+- Dark mode only redefines the token CSS variables under `:root[data-theme="dark"]`. Use the `dark:` variant only for things tokens cannot express (e.g. swapping icons).
+- Fonts: `font-display` (Newsreader) for headings, `font-sans` (Instrument Sans) for UI, `font-mono` (JetBrains Mono, tabular numbers) for CLABE, card and amounts. Use the `eyebrow` utility for small caps labels.
+- Avoid the generic "AI look": no gradients, glassmorphism, purple/indigo, oversized rounded cards with soft shadows or emoji icons.
+- Motion is subtle (`animate-fade-up`, short color transitions) and fully disabled under `prefers-reduced-motion`.
+
 ## Coding conventions
 
 - Use custom types for all data structures.

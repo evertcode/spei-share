@@ -1,0 +1,70 @@
+---
+import { es } from "../i18n/es";
+---
+
+<button
+  id="theme-toggle"
+  type="button"
+  aria-label={es.theme.toDark}
+  class="grid size-9 place-items-center rounded-full text-ink-muted transition-colors hover:bg-ink/6 hover:text-ink"
+>
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 20 20"
+    class="size-[18px] dark:hidden"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.4"
+  >
+    <path d="M16 12.5A6.5 6.5 0 0 1 7.5 4a6.5 6.5 0 1 0 8.5 8.5Z"></path>
+  </svg>
+  <svg
+    aria-hidden="true"
+    viewBox="0 0 20 20"
+    class="hidden size-[18px] dark:block"
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.4"
+    stroke-linecap="round"
+  >
+    <circle cx="10" cy="10" r="3.5"></circle>
+    <path d="M10 2v1.5M10 16.5V18M2 10h1.5M16.5 10H18M4.3 4.3l1.1 1.1M14.6 14.6l1.1 1.1M4.3 15.7l1.1-1.1M14.6 5.4l1.1-1.1"></path>
+  </svg>
+</button>
+
+<script>
+  import { queryRequired } from "../dom/queryRequired";
+  import {
+    applyTheme,
+    isTheme,
+    loadThemePreference,
+    resolveInitialTheme,
+    saveThemePreference,
+    type Theme,
+  } from "../dom/theme";
+  import { es } from "../i18n/es";
+
+  const button = queryRequired<HTMLButtonElement>("#theme-toggle");
+  const systemDark = window.matchMedia("(prefers-color-scheme: dark)");
+
+  function render(theme: Theme): void {
+    applyTheme(theme);
+    button.setAttribute("aria-label", theme === "dark" ? es.theme.toLight : es.theme.toDark);
+  }
+
+  function currentTheme(): Theme {
+    return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+  }
+
+  button.addEventListener("click", () => {
+    const next: Theme = currentTheme() === "dark" ? "light" : "dark";
+    saveThemePreference(next);
+    render(next);
+  });
+
+  systemDark.addEventListener("change", (event) => {
+    if (!isTheme(loadThemePreference())) render(event.matches ? "dark" : "light");
+  });
+
+  render(resolveInitialTheme(loadThemePreference(), systemDark.matches));
+</script>

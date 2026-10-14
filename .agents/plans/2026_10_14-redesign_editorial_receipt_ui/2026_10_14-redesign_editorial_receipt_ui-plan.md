@@ -17,8 +17,8 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T23:29:16Z"
-has_completed_all_phases: "false"
+last_implementation_at: "2026-10-14T23:34:02Z"
+has_completed_all_phases: "true"
 ---
 
 # 🎯 Goal
@@ -183,10 +183,12 @@ Add dark theme values and a persisted toggle without flash of the wrong theme.
   - `loadThemePreference(storage?: Pick<Storage, 'getItem'>): string | null`: returns `null` when storage throws.
   - `saveThemePreference(theme: Theme, storage?: Pick<Storage, 'setItem'>): void`: never throws.
   - `applyTheme(theme: Theme, root?: HTMLElement): void`: sets `data-theme` and `color-scheme` on `<html>`.
-- Styles: dark values for every color token under `:root[data-theme="dark"]`, QR keeps ink on light paper for scanner contrast.
+  - `isTheme(value: unknown): value is Theme`.
+- Styles: dark values for every color token under `:root[data-theme="dark"]`, QR keeps ink on light paper for scanner contrast. A `dark` custom variant (`[data-theme="dark"]`) is only used to swap the toggle icons.
 - Components:
-  - `ThemeToggle.astro` in `SiteHeader.astro`: icon button (inline SVG sun/moon) whose `aria-label` says the action.
-  - `BaseLayout.astro`: `is:inline` script in `<head>` applying the stored or system theme before first paint.
+  - `ThemeToggle.astro` in `SiteHeader.astro`: icon button (inline SVG sun/moon) whose `aria-label` says the action. While there is no stored preference, it follows live system theme changes.
+  - `BaseLayout.astro`: `is:inline` script in `<head>` (receives `THEME_STORAGE_KEY` through `define:vars`) applying the stored or system theme before first paint, plus `theme-color` metas for light and dark.
+- Docs: `AGENTS.md` gains a "Design conventions" section (tokens, fonts, dark mode, motion and anti "AI look" rules).
 - UI copies:
   - `theme.toDark`: "Cambiar a tema oscuro"
   - `theme.toLight`: "Cambiar a tema claro"
@@ -204,16 +206,16 @@ Add dark theme values and a persisted toggle without flash of the wrong theme.
 
 ### To-do
 
-- [ ] Create `src/dom/theme.ts` with unit tests.
-- [ ] Add dark token values in `global.css`.
-- [ ] Add the inline theme bootstrap script to `BaseLayout.astro`.
-- [ ] Create `ThemeToggle.astro`, mount it in `SiteHeader.astro`, add copies.
-- [ ] Add `tests/e2e/theme.spec.ts`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Create `src/dom/theme.ts` with unit tests.
+- [x] Add dark token values in `global.css`.
+- [x] Add the inline theme bootstrap script to `BaseLayout.astro`.
+- [x] Create `ThemeToggle.astro`, mount it in `SiteHeader.astro`, add copies.
+- [x] Add `tests/e2e/theme.spec.ts`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 # ⏭️ Next step
 
-Implement Phase 5: dark mode with system default and manual toggle.
+All phases are complete: merge `feature/editorial-redesign` into `main`.
 
-Receipt in hand, the turtle now hands out a QR stub with a gentle wave thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️ 🧾 👋
+Day or night, the turtle's receipts now read beautifully under any lamp thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️ 🧾 👋 🌙

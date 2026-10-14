@@ -5,6 +5,10 @@ export const es = {
   brand: {
     wordmark: "SPEI · share",
   },
+  theme: {
+    toDark: "Cambiar a tema oscuro",
+    toLight: "Cambiar a tema claro",
+  },
   footer: {
     privacy: "Tus datos viajan dentro del enlace, nunca en un servidor.",
   },

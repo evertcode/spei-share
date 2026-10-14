@@ -12,6 +12,20 @@
   --danger: #a23b2a;
 }
 
+:root[data-theme="dark"] {
+  --paper: #16140f;
+  --paper-raised: #1f1c16;
+  --ink: #ede6d8;
+  --ink-muted: #a39a8b;
+  --rule: #3a352c;
+  --accent: #8fb8a3;
+  --accent-ink: #16140f;
+  --danger: #e08a74;
+  color-scheme: dark;
+}
+
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 @theme inline {
   --color-paper: var(--paper);
   --color-paper-raised: var(--paper-raised);

@@ -6,6 +6,7 @@ import "@fontsource-variable/jetbrains-mono";
 import "../styles/global.css";
 import SiteFooter from "../components/SiteFooter.astro";
 import SiteHeader from "../components/SiteHeader.astro";
+import { THEME_STORAGE_KEY } from "../dom/theme";
 import { es } from "../i18n/es";
 
 interface Props {
@@ -22,7 +23,22 @@ const pageTitle = title ? `${title} | ${es.app.title}` : es.app.title;
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={es.home.subheading} />
-    <meta name="theme-color" content="#f4efe6" />
+    <meta name="theme-color" content="#f4efe6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#16140f" media="(prefers-color-scheme: dark)" />
+    <script is:inline define:vars={{ themeStorageKey: THEME_STORAGE_KEY }}>
+      // Applies the stored or system theme before first paint to avoid a flash of the wrong theme.
+      let stored = null;
+      try {
+        stored = localStorage.getItem(themeStorageKey);
+      } catch {
+        // Storage blocked: fall back to the system preference.
+      }
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const theme =
+        stored === "light" || stored === "dark" ? stored : prefersDark ? "dark" : "light";
+      document.documentElement.dataset.theme = theme;
+      document.documentElement.style.colorScheme = theme;
+    </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <title>{pageTitle}</title>
   </head>

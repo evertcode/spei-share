@@ -1,5 +1,6 @@
 ---
 import { es } from "../i18n/es";
+import ThemeToggle from "./ThemeToggle.astro";
 
 const [brandName, brandSuffix] = es.brand.wordmark.split(" · ");
 ---
@@ -24,5 +25,6 @@ const [brandName, brandSuffix] = es.brand.wordmark.split(" · ");
         {brandSuffix}
       </span>
     </a>
+    <ThemeToggle />
   </div>
 </header>
