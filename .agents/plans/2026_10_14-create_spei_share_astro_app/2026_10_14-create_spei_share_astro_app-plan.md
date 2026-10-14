@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T22:00:24Z"
+last_implementation_at: "2026-10-14T22:09:45Z"
 has_completed_all_phases: "false"
 ---
 
@@ -324,8 +324,12 @@ Add a share actions block (form result and shared card) with QR code, native sha
 - Application:
   - `formatTransferText(data: SpeiTransferData): string`: multi-line text with label and value per filled field, in fixed order (beneficiary, bank, destination, concept, amount, RFC, email).
   - `generateQrSvg(url: URL): Promise<string>`: SVG string using the `qrcode` package.
-  - `shareTransfer(data: SpeiTransferData, url: URL): Promise<'shared' | 'copied'>`: uses `navigator.share` when available, otherwise copies `formatTransferText` + link to the clipboard.
-- Components: `ShareActions.astro` used in `index.astro` (after generating) and `ver.astro`.
+  - `shareTransfer(data: SpeiTransferData, url: URL, shareNavigator?: ShareCapableNavigator): Promise<ShareResult>` (`ShareResult = 'shared' | 'copied'`): uses `navigator.share` when available, otherwise copies `formatTransferText` + link to the clipboard. The navigator is injectable for tests. A cancelled native share (`AbortError`) is ignored by the UI.
+  - `transferChannel.ts`: `publishTransfer(transfer: SharedTransfer | null): void` and `subscribeToTransfer(listener): () => void` (`SharedTransfer = { data: SpeiTransferData; url: URL }`). The form and the card publish the current transfer, `ShareActions` subscribes; the latest value is replayed so script order does not matter.
+  - `transferLabels.ts`: `DESTINATION_LABELS` shared by `formatTransferText` and `TransferCard.astro`.
+- Components:
+  - `ShareActions.astro` (prop `showCopyLink`, `false` in `index.astro` because the generated link already has its copy button) used in `index.astro` (after generating) and `ver.astro`.
+  - `CopyButton.astro` accepts an optional visible `text` and restores its original text after the "¡Copiado!" feedback.
 - UI copies:
   - `share.heading`: "Compartir"
   - `share.copyAll`: "Copiar todo"
@@ -351,12 +355,12 @@ Add a share actions block (form result and shared card) with QR code, native sha
 
 ### To-do
 
-- [ ] Add `qrcode` dependency (and `@types/qrcode`) in its own commit-ready step.
-- [ ] Create `formatTransferText`, `generateQrSvg` and `shareTransfer` with unit tests.
-- [ ] Build `ShareActions.astro` and mount it in both pages.
-- [ ] Update e2e tests.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Add `qrcode` dependency (and `@types/qrcode`) in its own commit-ready step.
+- [x] Create `formatTransferText`, `generateQrSvg` and `shareTransfer` with unit tests.
+- [x] Build `ShareActions.astro` and mount it in both pages.
+- [x] Update e2e tests.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 7: Remember the last entered data in localStorage
 
@@ -393,6 +397,6 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 # ⏭️ Next step
 
-Implement Phase 6: sharing with QR code, Web Share API and copy all.
+Implement Phase 7: remember the last entered data in localStorage.
 
-The turtle now fills in the concept and the amount before knocking on the bank's door, thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 📝 🏦
+With a QR on its shell, the turtle hands out its details to every friend it meets on the way to the bank, thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 📝 📱 🏦

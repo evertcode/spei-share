@@ -1,0 +1,95 @@
+---
+import { es } from "../i18n/es";
+import CopyButton from "./CopyButton.astro";
+
+interface Props {
+  showCopyLink?: boolean;
+}
+
+const { showCopyLink = true } = Astro.props;
+const actionClass =
+  "rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-teal-700";
+---
+
+<section id="share-actions" hidden aria-labelledby="share-heading" class="mt-8 space-y-4">
+  <h2 id="share-heading" class="text-lg font-semibold">
+    {es.share.heading}
+  </h2>
+
+  <div class="flex flex-wrap gap-2">
+    <CopyButton id="copy-all" label={es.share.copyAll} text={es.share.copyAll} />
+    {showCopyLink && (
+      <CopyButton id="copy-link" label={es.share.copyLink} text={es.share.copyLink} />
+    )}
+    <button
+      id="native-share"
+      type="button"
+      class="rounded-md bg-teal-700 px-3 py-2 text-sm font-semibold text-white hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+    >
+      {es.share.native}
+    </button>
+  </div>
+  <p id="share-status" class="text-sm text-slate-600" aria-live="polite"></p>
+
+  <figure class="flex flex-col items-center gap-3 rounded-lg border border-slate-200 bg-white p-4">
+    <div id="share-qr" role="img" aria-label={es.share.qr.alt} class="w-48 max-w-full"></div>
+    <a id="share-qr-download" download="spei-qr.svg" class={actionClass}>
+      {es.share.qr.download}
+    </a>
+  </figure>
+</section>
+
+<script>
+  import { queryRequired } from "../dom/queryRequired";
+  import { es } from "../i18n/es";
+  import { formatTransferText } from "../spei/application/formatTransferText";
+  import { generateQrSvg } from "../spei/application/generateQrSvg";
+  import { shareTransfer } from "../spei/application/shareTransfer";
+  import { subscribeToTransfer, type SharedTransfer } from "../spei/application/transferChannel";
+
+  const section = queryRequired<HTMLElement>("#share-actions");
+  const copyAllButton = queryRequired<HTMLButtonElement>("#copy-all", section);
+  const copyLinkButton = section.querySelector<HTMLButtonElement>("#copy-link");
+  const nativeShareButton = queryRequired<HTMLButtonElement>("#native-share", section);
+  const status = queryRequired("#share-status", section);
+  const qr = queryRequired("#share-qr", section);
+  const qrDownload = queryRequired<HTMLAnchorElement>("#share-qr-download", section);
+
+  let current: SharedTransfer | null = null;
+  let qrObjectUrl: string | undefined;
+
+  async function renderQr(url: URL): Promise<void> {
+    const svg = await generateQrSvg(url);
+    qr.innerHTML = svg;
+
+    if (qrObjectUrl) URL.revokeObjectURL(qrObjectUrl);
+    qrObjectUrl = URL.createObjectURL(new Blob([svg], { type: "image/svg+xml" }));
+    qrDownload.href = qrObjectUrl;
+  }
+
+  async function show(transfer: SharedTransfer | null): Promise<void> {
+    current = transfer;
+    status.textContent = "";
+    section.hidden = transfer === null;
+    if (!transfer) return;
+
+    const link = transfer.url.toString();
+    copyAllButton.dataset.copyValue = `${formatTransferText(transfer.data)}\n\n${link}`;
+    if (copyLinkButton) copyLinkButton.dataset.copyValue = link;
+    await renderQr(transfer.url);
+  }
+
+  nativeShareButton.addEventListener("click", async () => {
+    if (!current) return;
+
+    try {
+      const result = await shareTransfer(current.data, current.url);
+      status.textContent = result === "copied" ? es.share.copiedFallback : "";
+    } catch (error) {
+      if (error instanceof DOMException && error.name === "AbortError") return;
+      throw error;
+    }
+  });
+
+  subscribeToTransfer((transfer) => void show(transfer));
+</script>

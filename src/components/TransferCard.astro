@@ -51,19 +51,14 @@ const rows: Row[] = [
 <script>
   import { queryRequired } from "../dom/queryRequired";
   import { es } from "../i18n/es";
-  import type { DestinationType } from "../spei/domain/SpeiTransferData";
   import { formatOptionalField, OPTIONAL_FIELDS } from "../spei/domain/optionalFields";
   import { formatTransferDestination } from "../spei/domain/transferDestination";
   import { InvalidShareLinkError } from "../spei/application/InvalidShareLinkError";
   import { decodeShareLink } from "../spei/application/shareLink";
+  import { DESTINATION_LABELS } from "../spei/application/transferLabels";
+  import { publishTransfer } from "../spei/application/transferChannel";
 
   type DisplayValue = { display: string; copy: string; label?: string };
-
-  const DESTINATION_LABELS: Record<DestinationType, string> = {
-    clabe: es.view.clabe.label,
-    card: es.view.card.label,
-    account: es.view.account.label,
-  };
 
   const card = queryRequired<HTMLElement>("#transfer-card");
   const invalidLink = queryRequired<HTMLElement>("#invalid-link");
@@ -106,10 +101,12 @@ const rows: Row[] = [
       }
       card.hidden = false;
       invalidLink.hidden = true;
+      publishTransfer({ data, url: new URL(window.location.href) });
     } catch (error) {
       if (!(error instanceof InvalidShareLinkError)) throw error;
       card.hidden = true;
       invalidLink.hidden = false;
+      publishTransfer(null);
     }
   }
 

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ShareActions from "../components/ShareActions.astro";
 import TransferForm from "../components/TransferForm.astro";
 import { es } from "../i18n/es";
 ---
@@ -10,4 +11,5 @@ import { es } from "../i18n/es";
     <p class="text-slate-600">{es.home.subheading}</p>
   </header>
   <TransferForm />
+  <ShareActions showCopyLink={false} />
 </BaseLayout>

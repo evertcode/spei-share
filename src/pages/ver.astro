@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ShareActions from "../components/ShareActions.astro";
 import TransferCard from "../components/TransferCard.astro";
 import { es } from "../i18n/es";
 ---
@@ -7,4 +8,5 @@ import { es } from "../i18n/es";
 <BaseLayout title={es.view.heading}>
   <h1 class="mb-6 text-3xl font-bold tracking-tight">{es.view.heading}</h1>
   <TransferCard />
+  <ShareActions />
 </BaseLayout>

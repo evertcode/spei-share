@@ -3,11 +3,12 @@ import { es } from "../i18n/es";
 
 interface Props {
   label: string;
+  text?: string;
   value?: string;
   id?: string;
 }
 
-const { label, value = "", id } = Astro.props;
+const { label, text, value = "", id } = Astro.props;
 ---
 
 <button
@@ -15,10 +16,10 @@ const { label, value = "", id } = Astro.props;
   id={id}
   data-copy-button
   data-copy-value={value}
-  aria-label={`${es.copy.action} ${label}`}
+  aria-label={text ? undefined : `${es.copy.action} ${label}`}
   class="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-teal-700"
 >
-  {es.copy.action}
+  {text ?? es.copy.action}
 </button>
 
 <script>
@@ -33,10 +34,13 @@ const { label, value = "", id } = Astro.props;
     const button = target.closest<HTMLButtonElement>("[data-copy-button]");
     if (!button) return;
 
+    const idleText = button.dataset.idleText ?? button.textContent;
+    button.dataset.idleText = idleText;
+
     await navigator.clipboard.writeText(button.dataset.copyValue ?? "");
     button.textContent = es.copy.done;
     setTimeout(() => {
-      button.textContent = es.copy.action;
+      button.textContent = idleText;
     }, FEEDBACK_MS);
   });
 </script>

@@ -129,6 +129,7 @@ const destinationOptions: DestinationOption[] = [
   import { createOptionalField, OPTIONAL_FIELDS } from "../spei/domain/optionalFields";
   import { createTransferDestination, isDestinationType } from "../spei/domain/transferDestination";
   import { encodeShareLink } from "../spei/application/shareLink";
+  import { publishTransfer } from "../spei/application/transferChannel";
 
   type FieldName = "beneficiaryName" | DestinationType | "bankName" | OptionalField;
   type FieldErrors = Partial<Record<FieldName, string>>;
@@ -290,14 +291,16 @@ const destinationOptions: DestinationOption[] = [
     if (!result.ok) {
       showErrors(result.errors);
       output.hidden = true;
+      publishTransfer(null);
       return;
     }
 
     showErrors({});
-    const link = encodeShareLink(result.data, new URL(window.location.origin)).toString();
-    linkInput.value = link;
-    copyLinkButton.dataset.copyValue = link;
+    const url = encodeShareLink(result.data, new URL(window.location.origin));
+    linkInput.value = url.toString();
+    copyLinkButton.dataset.copyValue = url.toString();
     output.hidden = false;
+    publishTransfer({ data: result.data, url });
   });
 
   showDestinationFields();

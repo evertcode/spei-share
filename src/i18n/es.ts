@@ -70,4 +70,16 @@ export const es = {
     action: "Copiar",
     done: "¡Copiado!",
   },
+  share: {
+    heading: "Compartir",
+    copyAll: "Copiar todo",
+    copyLink: "Copiar enlace",
+    native: "Compartir",
+    qr: {
+      alt: "Código QR con el enlace a tus datos SPEI",
+      download: "Descargar QR",
+    },
+    text: { title: "Datos para transferencia SPEI" },
+    copiedFallback: "Tu dispositivo no permite compartir, copiamos los datos al portapapeles",
+  },
 } as const;

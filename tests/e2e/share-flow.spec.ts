@@ -117,6 +117,29 @@ test("shows an error for an invalid rfc", async ({ page }) => {
   await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
 });
 
+test("shows the qr code after generating the link", async ({ page }) => {
+  await createLink(page);
+
+  const qr = page.getByRole("img", { name: "Código QR con el enlace a tus datos SPEI" });
+  await expect(qr).toBeVisible();
+  await expect(qr.locator("svg")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Descargar QR" })).toHaveAttribute("href", /^blob:/);
+});
+
+test("copies all data as formatted text", async ({ page, context }) => {
+  await context.grantPermissions(["clipboard-read", "clipboard-write"]);
+  const link = await createLink(page);
+  await page.goto(link);
+
+  await page.getByRole("button", { name: "Copiar todo" }).click();
+
+  const clipboard = await page.evaluate(() => navigator.clipboard.readText());
+  expect(clipboard).toContain("Datos para transferencia SPEI");
+  expect(clipboard).toContain(`Beneficiario: ${BENEFICIARY}`);
+  expect(clipboard).toContain("CLABE: 012 180 00123456789 9");
+  expect(clipboard.endsWith(link)).toBe(true);
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 
