@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T23:10:25Z"
+last_implementation_at: "2026-10-14T23:24:46Z"
 has_completed_all_phases: "false"
 ---
 
@@ -121,7 +121,10 @@ Turn `/ver` into a printed receipt.
     - Receipt container on `paper-raised` with zig-zag top and bottom edges (CSS `mask`/`clip-path`, no images).
     - Eyebrow and verify note inside the receipt.
     - Rows separated by dotted rules, labels in small caps, values right-aligned with monospaced figures for destination and amount.
-    - Same `#transfer-card`, `[data-row]`, `[data-value]`, `dt`, `[data-copy-button]` contracts.
+    - Same `#transfer-card`, `[data-row]`, `[data-value]`, `dt`, `[data-copy-button]` contracts. `#transfer-card` moved from the `<dl>` to the receipt `<article>` wrapper so the eyebrow and verify note hide with it.
+    - Valid `<dl>` markup: each row is `div > dt + dd`, with `[data-value]` as a `<span>` and the copy button inside the `<dd>` (before, the button was a direct child of the row `div`).
+    - Values are stacked under their label instead of right-aligned, so long values fit on mobile. The destination never wraps (`whitespace-nowrap`), and the copy button wraps to the next line aligned right when there is no room.
+- Styles: `receipt-edges` (zig-zag CSS mask) and `receipt-shadow` (hairline `drop-shadow` that follows the mask) utilities in `global.css`.
     - Invalid link state restyled as an editorial notice keeping `role="alert"` and the link to `/`.
 - UI copies:
   - `view.receipt.eyebrow`: "Comprobante para transferir"
@@ -129,12 +132,12 @@ Turn `/ver` into a printed receipt.
 
 ### To-do
 
-- [ ] Build the receipt layout and zig-zag edges in `TransferCard.astro`.
-- [ ] Restyle rows, labels, values and per-row copy buttons.
-- [ ] Add eyebrow and verify note copies and render them.
-- [ ] Restyle the invalid link state.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Build the receipt layout and zig-zag edges in `TransferCard.astro`.
+- [x] Restyle rows, labels, values and per-row copy buttons.
+- [x] Add eyebrow and verify note copies and render them.
+- [x] Restyle the invalid link state.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 4: Share actions, QR stub and subtle motion
 
@@ -210,6 +213,6 @@ Add dark theme values and a persisted toggle without flash of the wrong theme.
 
 # ⏭️ Next step
 
-Implement Phase 3: shared page as a transfer receipt.
+Implement Phase 4: share actions with QR stub and subtle motion.
 
-Paper and ink ready, the turtle has now filled in the form line by line thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️
+Form filled in, the turtle tore off its first receipt with a jagged edge thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️ 🧾

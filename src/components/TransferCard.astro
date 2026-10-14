@@ -3,47 +3,61 @@ import { es } from "../i18n/es";
 import type { OptionalField } from "../spei/domain/SpeiTransferData";
 import CopyButton from "./CopyButton.astro";
 
+type RowStyle = "text" | "figure" | "headline";
+
 type Row = {
   field: "beneficiaryName" | "bankName" | "destination" | OptionalField;
   label: string;
-  mono: boolean;
+  style: RowStyle;
 };
 
 const rows: Row[] = [
-  { field: "beneficiaryName", label: es.view.beneficiaryName.label, mono: false },
-  { field: "bankName", label: es.view.bank.label, mono: false },
-  { field: "destination", label: es.view.clabe.label, mono: true },
-  { field: "concept", label: es.view.concept.label, mono: false },
-  { field: "amount", label: es.view.amount.label, mono: false },
-  { field: "rfc", label: es.view.rfc.label, mono: true },
-  { field: "email", label: es.view.email.label, mono: false },
+  { field: "beneficiaryName", label: es.view.beneficiaryName.label, style: "text" },
+  { field: "bankName", label: es.view.bank.label, style: "text" },
+  { field: "destination", label: es.view.clabe.label, style: "headline" },
+  { field: "concept", label: es.view.concept.label, style: "text" },
+  { field: "amount", label: es.view.amount.label, style: "figure" },
+  { field: "rfc", label: es.view.rfc.label, style: "figure" },
+  { field: "email", label: es.view.email.label, style: "text" },
 ];
+
+const VALUE_CLASSES: Record<RowStyle, string> = {
+  text: "text-lg text-ink [overflow-wrap:anywhere]",
+  figure: "font-mono text-base tracking-wide text-ink [overflow-wrap:anywhere]",
+  headline: "font-mono text-lg tracking-wide whitespace-nowrap text-ink sm:text-2xl",
+};
 ---
 
-<dl
-  id="transfer-card"
-  hidden
-  class="divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white"
->
-  {rows.map(({ field, label, mono }) => (
-    <div class="flex items-center justify-between gap-4 px-4 py-3" data-row={field}>
-      <div class="min-w-0">
-        <dt class="text-sm text-slate-500">{label}</dt>
-        <dd class:list={["font-medium break-all", { "font-mono": mono }]} data-value />
-      </div>
-      <CopyButton label={label} />
-    </div>
-  ))}
-</dl>
+<article id="transfer-card" hidden class="receipt-shadow">
+  <div class="receipt-edges bg-paper-raised px-6 pt-10 pb-11 sm:px-9">
+    <p class="eyebrow text-center text-accent">{es.view.receipt.eyebrow}</p>
+    <hr class="mt-5 border-0 border-t border-dashed border-ink/25" />
 
-<div
-  id="invalid-link"
-  hidden
-  role="alert"
-  class="space-y-4 rounded-lg border border-red-200 bg-red-50 p-4"
->
-  <p class="text-red-800">{es.view.invalidLink}</p>
-  <a href="/" class="font-medium text-teal-800 underline">
+    <dl class="divide-y divide-dotted divide-ink/25">
+      {rows.map(({ field, label, style }) => (
+        <div class="py-4" data-row={field}>
+          <dt class="eyebrow text-ink-muted">{label}</dt>
+          <dd class="mt-1.5 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 [&>button]:ml-auto">
+            <span class:list={["min-w-0", VALUE_CLASSES[style]]} data-value />
+            <CopyButton label={label} />
+          </dd>
+        </div>
+      ))}
+    </dl>
+
+    <hr class="border-0 border-t border-dashed border-ink/25" />
+    <p class="mt-5 text-center font-display text-base text-ink-muted italic">
+      {es.view.receipt.verify}
+    </p>
+  </div>
+</article>
+
+<div id="invalid-link" hidden role="alert" class="border-l-2 border-danger py-1 pl-5">
+  <p class="font-display text-2xl leading-snug text-ink">{es.view.invalidLink}</p>
+  <a
+    href="/"
+    class="mt-4 inline-block font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+  >
     {es.view.createOwn}
   </a>
 </div>

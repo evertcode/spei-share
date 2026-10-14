@@ -65,3 +65,18 @@
   line-height: 1.2;
   text-transform: uppercase;
 }
+
+/* Receipt paper with zig-zag top and bottom edges, drawn with a CSS mask (no images). */
+@utility receipt-edges {
+  --tooth: 14px;
+  mask:
+    conic-gradient(from 135deg at top, #0000, #000 1deg 89deg, #0000 90deg) top / var(--tooth) 51%
+      repeat-x,
+    conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) bottom / var(--tooth)
+      51% repeat-x;
+}
+
+/* Hairline outline that follows the masked receipt shape. */
+@utility receipt-shadow {
+  filter: drop-shadow(0 0 0.5px var(--rule)) drop-shadow(0 1px 1px rgb(28 26 23 / 0.06));
+}

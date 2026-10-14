@@ -66,6 +66,10 @@ export const es = {
   },
   view: {
     heading: "Datos para transferencia",
+    receipt: {
+      eyebrow: "Comprobante para transferir",
+      verify: "Verifica el nombre del beneficiario antes de enviar.",
+    },
     invalidLink: "Este enlace no es válido o está incompleto.",
     createOwn: "Crear mi propio enlace",
     beneficiaryName: { label: "Beneficiario" },
