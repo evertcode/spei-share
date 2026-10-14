@@ -140,6 +140,17 @@ test("copies all data as formatted text", async ({ page, context }) => {
   expect(clipboard.endsWith(link)).toBe(true);
 });
 
+test("does not animate when reduced motion is requested", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await createLink(page);
+
+  const animationName = await page
+    .locator("#share-actions")
+    .evaluate((element) => getComputedStyle(element).animationName);
+
+  expect(animationName).toBe("none");
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 

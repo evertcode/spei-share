@@ -24,6 +24,19 @@
 }
 
 @theme {
+  --animate-fade-up: fade-up 180ms ease-out both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
   --font-display: "Newsreader Variable", Georgia, "Times New Roman", serif;
   --font-sans: "Instrument Sans Variable", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono Variable", ui-monospace, "SFMono-Regular", monospace;
@@ -79,4 +92,15 @@
 /* Hairline outline that follows the masked receipt shape. */
 @utility receipt-shadow {
   filter: drop-shadow(0 0 0.5px var(--rule)) drop-shadow(0 1px 1px rgb(28 26 23 / 0.06));
+}
+
+/* Motion is decorative only: switch it off entirely when the user asks for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  ::before,
+  ::after {
+    animation: none !important;
+    transition: none !important;
+    scroll-behavior: auto !important;
+  }
 }

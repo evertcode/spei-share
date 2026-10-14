@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T23:24:46Z"
+last_implementation_at: "2026-10-14T23:29:16Z"
 has_completed_all_phases: "false"
 ---
 
@@ -148,12 +148,13 @@ Integrate sharing into the receipt aesthetic and add restrained motion.
 - Components:
   - `ShareActions.astro`:
     - Actions as a ruled row of quiet buttons with "Compartir" as the primary ink button.
-    - QR shown as a tear-off stub (dashed perforation line above), QR drawn in `ink` on `paper-raised`.
+    - QR shown as a small receipt stub reusing `receipt-edges` and `receipt-shadow` (zig-zag edges instead of a dashed perforation line, consistent with the main receipt).
     - "Descargar QR" as a text link.
     - Same ids, roles and names.
-  - `CopyButton.astro`: copied feedback with a short color/check transition.
+  - `CopyButton.astro`: copied feedback sets a temporary `data-copied` attribute styled with `data-copied:` variants (accent background, 200ms color transition).
+- Application: `generateQrSvg` draws the QR with fixed ink `#1c1a17` on paper `#fbf8f2` colors, so the downloaded SVG stays scannable regardless of the page theme.
 - Styles (`src/styles/global.css`):
-  - Utility keyframes `fade-up` (opacity + 4px translate, 180ms) applied when `#generated-link`, `#share-actions` and `#transfer-card` become visible.
+  - `--animate-fade-up` theme animation with `fade-up` keyframes (opacity + 4px translate, 180ms) exposed as `animate-fade-up`, applied to `#generated-link`, `#share-actions` and `#transfer-card` (it replays every time `hidden` is removed).
   - Transitions on hover/focus for buttons, inputs and segmented control.
   - `@media (prefers-reduced-motion: reduce)` disables all animations and transitions.
 - Test suites:
@@ -162,12 +163,12 @@ Integrate sharing into the receipt aesthetic and add restrained motion.
 
 ### To-do
 
-- [ ] Restyle `ShareActions.astro` with the QR stub and action row.
-- [ ] Add copied feedback transition to `CopyButton.astro`.
-- [ ] Add `fade-up` keyframes, transitions and reduced motion overrides in `global.css`, apply them to the revealed sections.
-- [ ] Add the reduced motion e2e test (emulate `reducedMotion: "reduce"` and assert computed `animation-name` is `none` on `#share-actions`).
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Restyle `ShareActions.astro` with the QR stub and action row.
+- [x] Add copied feedback transition to `CopyButton.astro`.
+- [x] Add `fade-up` keyframes, transitions and reduced motion overrides in `global.css`, apply them to the revealed sections.
+- [x] Add the reduced motion e2e test (emulate `reducedMotion: "reduce"` and assert computed `animation-name` is `none` on `#share-actions`).
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 5: Dark mode with system default and manual toggle
 
@@ -213,6 +214,6 @@ Add dark theme values and a persisted toggle without flash of the wrong theme.
 
 # ⏭️ Next step
 
-Implement Phase 4: share actions with QR stub and subtle motion.
+Implement Phase 5: dark mode with system default and manual toggle.
 
-Form filled in, the turtle tore off its first receipt with a jagged edge thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️ 🧾
+Receipt in hand, the turtle now hands out a QR stub with a gentle wave thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️ 🧾 👋
