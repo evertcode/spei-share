@@ -22,6 +22,7 @@ Static Astro app to create and share Mexican SPEI transfer details (CLABE, card 
 - `src/spei/domain/`: value objects, types and errors (one file per concept, `PascalCase.ts` for classes).
 - `src/spei/application/`: use cases as plain functions (`camelCase.ts`).
 - `src/components/`: Astro components (`PascalCase.astro`).
+- `src/dom/`: small browser helpers for component scripts (e.g. `queryRequired` instead of non-null assertions).
 - `src/layouts/`: page layouts.
 - `src/pages/`: routes (`index.astro` form, `ver.astro` shared card).
 - `src/i18n/es.ts`: every user facing copy (Spanish, Mexico). Never hardcode copies in components.

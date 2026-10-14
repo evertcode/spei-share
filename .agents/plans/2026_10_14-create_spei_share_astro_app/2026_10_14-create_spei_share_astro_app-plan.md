@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T21:18:42Z"
+last_implementation_at: "2026-10-14T21:22:31Z"
 has_completed_all_phases: "false"
 ---
 
@@ -93,6 +93,7 @@ Fill CLABE and beneficiary name, generate a share link, open it and copy each fi
   - `encodeShareLink(data: SpeiTransferData, baseUrl: URL): URL`: returns `{baseUrl}/ver#d=<base64url(JSON)>`, UTF-8 safe.
   - `decodeShareLink(hash: string): SpeiTransferData`: throws `InvalidShareLinkError` on malformed hash, invalid JSON or invalid data.
   - `class InvalidShareLinkError extends Error`.
+- DOM helper: `queryRequired<T extends Element>(selector: string, root?: ParentNode): T` in `src/dom/queryRequired.ts` (throws when the element is missing, avoids non-null assertions forbidden by the linter).
 - Components and pages:
   - `TransferForm.astro` (in `index.astro`): fields, submit, generated link output.
   - `TransferCard.astro` + `CopyButton.astro` (in `ver.astro`): renders decoded data, copy button per field using `navigator.clipboard.writeText`.
@@ -108,6 +109,8 @@ Fill CLABE and beneficiary name, generate a share link, open it and copy each fi
   - `view.heading`: "Datos para transferencia"
   - `view.invalidLink`: "Este enlace no es válido o está incompleto."
   - `view.createOwn`: "Crear mi propio enlace"
+  - `view.beneficiaryName.label`: "Beneficiario"
+  - `view.clabe.label`: "CLABE"
   - `copy.action`: "Copiar"
   - `copy.done`: "¡Copiado!"
 - Test suites:
@@ -130,14 +133,14 @@ Fill CLABE and beneficiary name, generate a share link, open it and copy each fi
 
 ### To-do
 
-- [ ] Create domain types, `Clabe` and `InvalidClabeError` with unit tests.
-- [ ] Create `encodeShareLink`, `decodeShareLink` and `InvalidShareLinkError` with unit tests.
-- [ ] Add UI copies to `src/i18n/es.ts`.
-- [ ] Build `TransferForm.astro` with client-side validation and generated link output, mount it in `index.astro`.
-- [ ] Build `CopyButton.astro`, `TransferCard.astro` and `src/pages/ver.astro` reading `location.hash`, with invalid link state.
-- [ ] Add `tests/e2e/share-flow.spec.ts` (grant clipboard permissions in Playwright).
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Create domain types, `Clabe` and `InvalidClabeError` with unit tests.
+- [x] Create `encodeShareLink`, `decodeShareLink` and `InvalidShareLinkError` with unit tests.
+- [x] Add UI copies to `src/i18n/es.ts`.
+- [x] Build `TransferForm.astro` with client-side validation and generated link output, mount it in `index.astro`.
+- [x] Build `CopyButton.astro`, `TransferCard.astro` and `src/pages/ver.astro` reading `location.hash`, with invalid link state.
+- [x] Add `tests/e2e/share-flow.spec.ts` (grant clipboard permissions in Playwright).
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 3: CLABE check digit validation and bank auto-detection
 
@@ -368,6 +371,6 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 # ⏭️ Next step
 
-Implement Phase 2: happy path to create a share link from CLABE and beneficiary name and view it with per-field copy.
+Implement Phase 3: CLABE check digit validation and bank auto-detection.
 
-Scaffold built, the turtle has laid the first brick on its way to the bank thanks to [Codely](https://codely.com) 🧱 🐢 💨 🏦
+The turtle now carries a link in its shell all the way to the bank thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🏦

@@ -1,0 +1,42 @@
+---
+import { es } from "../i18n/es";
+
+interface Props {
+  label: string;
+  value?: string;
+  id?: string;
+}
+
+const { label, value = "", id } = Astro.props;
+---
+
+<button
+  type="button"
+  id={id}
+  data-copy-button
+  data-copy-value={value}
+  aria-label={`${es.copy.action} ${label}`}
+  class="shrink-0 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-100 focus-visible:outline-2 focus-visible:outline-teal-700"
+>
+  {es.copy.action}
+</button>
+
+<script>
+  import { es } from "../i18n/es";
+
+  const FEEDBACK_MS = 2000;
+
+  document.addEventListener("click", async (event) => {
+    const target = event.target;
+    if (!(target instanceof Element)) return;
+
+    const button = target.closest<HTMLButtonElement>("[data-copy-button]");
+    if (!button) return;
+
+    await navigator.clipboard.writeText(button.dataset.copyValue ?? "");
+    button.textContent = es.copy.done;
+    setTimeout(() => {
+      button.textContent = es.copy.action;
+    }, FEEDBACK_MS);
+  });
+</script>

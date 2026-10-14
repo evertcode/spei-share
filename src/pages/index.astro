@@ -1,11 +1,13 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import TransferForm from "../components/TransferForm.astro";
 import { es } from "../i18n/es";
 ---
 
 <BaseLayout>
-  <header class="space-y-2">
+  <header class="mb-8 space-y-2">
     <h1 class="text-3xl font-bold tracking-tight">{es.home.heading}</h1>
     <p class="text-slate-600">{es.home.subheading}</p>
   </header>
+  <TransferForm />
 </BaseLayout>

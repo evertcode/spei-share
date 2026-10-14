@@ -1,0 +1,141 @@
+---
+import { es } from "../i18n/es";
+import CopyButton from "./CopyButton.astro";
+
+const inputClass =
+  "w-full rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700/30 focus:outline-none aria-invalid:border-red-600";
+---
+
+<form id="transfer-form" novalidate class="space-y-5">
+  <div class="space-y-1">
+    <label for="beneficiaryName" class="block text-sm font-medium">
+      {es.form.beneficiaryName.label}
+    </label>
+    <input
+      id="beneficiaryName"
+      name="beneficiaryName"
+      type="text"
+      autocomplete="name"
+      required
+      aria-describedby="beneficiaryName-error"
+      class={inputClass}
+    />
+    <p id="beneficiaryName-error" class="text-sm text-red-700" aria-live="polite"></p>
+  </div>
+
+  <div class="space-y-1">
+    <label for="clabe" class="block text-sm font-medium">
+      {es.form.clabe.label}
+    </label>
+    <input
+      id="clabe"
+      name="clabe"
+      type="text"
+      inputmode="numeric"
+      autocomplete="off"
+      placeholder={es.form.clabe.placeholder}
+      required
+      aria-describedby="clabe-error"
+      class={`${inputClass} font-mono`}
+    />
+    <p id="clabe-error" class="text-sm text-red-700" aria-live="polite"></p>
+  </div>
+
+  <button
+    type="submit"
+    class="w-full rounded-md bg-teal-700 px-4 py-2.5 font-semibold text-white hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+  >
+    {es.form.submit}
+  </button>
+</form>
+
+<section id="generated-link" hidden class="mt-8 space-y-2">
+  <label for="generatedLink" class="block text-sm font-medium">
+    {es.form.generatedLink.label}
+  </label>
+  <div class="flex gap-2">
+    <input
+      id="generatedLink"
+      type="url"
+      readonly
+      class="w-full rounded-md border border-slate-300 bg-slate-100 px-3 py-2 text-sm"
+    />
+    <CopyButton id="copy-generated-link" label={es.form.generatedLink.label} />
+  </div>
+</section>
+
+<script>
+  import { queryRequired } from "../dom/queryRequired";
+  import { es } from "../i18n/es";
+  import { Clabe } from "../spei/domain/Clabe";
+  import { InvalidClabeError } from "../spei/domain/InvalidClabeError";
+  import type { SpeiTransferData } from "../spei/domain/SpeiTransferData";
+  import { encodeShareLink } from "../spei/application/shareLink";
+
+  type FieldName = "beneficiaryName" | "clabe";
+  type FieldErrors = Partial<Record<FieldName, string>>;
+  type ValidationResult = { ok: true; data: SpeiTransferData } | { ok: false; errors: FieldErrors };
+
+  const CLABE_ERRORS: Record<InvalidClabeError["reason"], string> = {
+    length: es.errors.clabe.length,
+    non_numeric: es.errors.clabe.nonNumeric,
+  };
+
+  const form = queryRequired<HTMLFormElement>("#transfer-form");
+  const output = queryRequired<HTMLElement>("#generated-link");
+  const linkInput = queryRequired<HTMLInputElement>("#generatedLink");
+  const copyLinkButton = queryRequired<HTMLButtonElement>("#copy-generated-link");
+
+  function validate(formData: FormData): ValidationResult {
+    const errors: FieldErrors = {};
+    const beneficiaryName = String(formData.get("beneficiaryName") ?? "").trim();
+    const rawClabe = String(formData.get("clabe") ?? "").trim();
+
+    if (beneficiaryName === "") errors.beneficiaryName = es.errors.required;
+
+    let clabe: Clabe | undefined;
+    if (rawClabe === "") {
+      errors.clabe = es.errors.required;
+    } else {
+      try {
+        clabe = Clabe.create(rawClabe);
+      } catch (error) {
+        if (!(error instanceof InvalidClabeError)) throw error;
+        errors.clabe = CLABE_ERRORS[error.reason];
+      }
+    }
+
+    if (!clabe || Object.keys(errors).length > 0) return { ok: false, errors };
+
+    return {
+      ok: true,
+      data: { beneficiaryName, destination: { type: "clabe", value: clabe.value } },
+    };
+  }
+
+  function showErrors(errors: FieldErrors): void {
+    for (const field of ["beneficiaryName", "clabe"] as const) {
+      const input = queryRequired<HTMLInputElement>(`#${field}`, form);
+      const message = errors[field] ?? "";
+      queryRequired(`#${field}-error`, form).textContent = message;
+      input.setAttribute("aria-invalid", String(message !== ""));
+    }
+  }
+
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const result = validate(new FormData(form));
+
+    if (!result.ok) {
+      showErrors(result.errors);
+      output.hidden = true;
+      return;
+    }
+
+    showErrors({});
+    const link = encodeShareLink(result.data, new URL(window.location.origin)).toString();
+    linkInput.value = link;
+    copyLinkButton.dataset.copyValue = link;
+    output.hidden = false;
+  });
+</script>
