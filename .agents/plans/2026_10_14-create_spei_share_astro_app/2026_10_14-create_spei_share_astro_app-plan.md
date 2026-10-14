@@ -17,8 +17,8 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T22:09:45Z"
-has_completed_all_phases: "false"
+last_implementation_at: "2026-10-14T22:44:19Z"
+has_completed_all_phases: "true"
 ---
 
 # 🎯 Goal
@@ -372,7 +372,9 @@ Prefill the form with the last data the user generated a link for, with an optio
   - `saveDraft(data: SpeiTransferData, storage?: Storage): void`
   - `loadDraft(storage?: Storage): SpeiTransferData | null`: returns `null` when missing, corrupted or invalid, and when storage access throws.
   - `clearDraft(storage?: Storage): void`
-  - Storage key: `spei-share:draft:v1`.
+  - Storage key: `spei-share:draft:v1` (exported as `DRAFT_STORAGE_KEY`).
+  - The `storage` parameter accepts any `Pick<Storage, 'getItem' | 'setItem' | 'removeItem'>` and defaults to `localStorage`. `saveDraft` and `clearDraft` never throw.
+  - `parseTransferData(payload: unknown): SpeiTransferData` extracted from `shareLink.ts` to `src/spei/application/parseTransferData.ts`, so share links and stored drafts share the same validation.
 - UI copies:
   - `form.draft.restored`: "Recuperamos tus últimos datos"
   - `form.draft.clear`: "Borrar datos guardados"
@@ -381,6 +383,7 @@ Prefill the form with the last data the user generated a link for, with an optio
     - `saves and loads the same transfer data`
     - `returns null when there is no draft`
     - `returns null when the draft is corrupted`
+    - `returns null when the draft contains invalid data`
     - `returns null when storage throws`
     - `clears the draft`
   - `tests/e2e/draft.spec.ts`
@@ -389,14 +392,14 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 ### To-do
 
-- [ ] Create `saveDraft`, `loadDraft` and `clearDraft` with unit tests.
-- [ ] Save on link generation, prefill on load and add clear button in `TransferForm.astro`.
-- [ ] Add `tests/e2e/draft.spec.ts`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Create `saveDraft`, `loadDraft` and `clearDraft` with unit tests.
+- [x] Save on link generation, prefill on load and add clear button in `TransferForm.astro`.
+- [x] Add `tests/e2e/draft.spec.ts`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 # ⏭️ Next step
 
-Implement Phase 7: remember the last entered data in localStorage.
+All phases are complete: merge the stacked `feature/phase-*` branches into `main` and deploy the static build.
 
-With a QR on its shell, the turtle hands out its details to every friend it meets on the way to the bank, thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 📝 📱 🏦
+Journey complete: the turtle reached the bank and even remembers the way home for next time, thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 📝 📱 🏦 🧠 🏁

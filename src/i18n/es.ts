@@ -31,6 +31,10 @@ export const es = {
     email: { label: "Correo electrónico" },
     submit: "Generar enlace",
     generatedLink: { label: "Tu enlace para compartir" },
+    draft: {
+      restored: "Recuperamos tus últimos datos",
+      clear: "Borrar datos guardados",
+    },
   },
   errors: {
     required: "Este campo es obligatorio",

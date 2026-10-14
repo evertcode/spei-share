@@ -13,6 +13,21 @@ const destinationOptions: DestinationOption[] = [
 ];
 ---
 
+<div
+  id="draft-notice"
+  hidden
+  class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm"
+>
+  <p class="text-teal-900">{es.form.draft.restored}</p>
+  <button
+    id="clear-draft"
+    type="button"
+    class="font-medium text-teal-800 underline hover:text-teal-950 focus-visible:outline-2 focus-visible:outline-teal-700"
+  >
+    {es.form.draft.clear}
+  </button>
+</div>
+
 <form id="transfer-form" novalidate class="space-y-5">
   <TextField id="beneficiaryName" label={es.form.beneficiaryName.label} autocomplete="name" />
 
@@ -128,6 +143,7 @@ const destinationOptions: DestinationOption[] = [
   } from "../spei/domain/SpeiTransferData";
   import { createOptionalField, OPTIONAL_FIELDS } from "../spei/domain/optionalFields";
   import { createTransferDestination, isDestinationType } from "../spei/domain/transferDestination";
+  import { clearDraft, loadDraft, saveDraft } from "../spei/application/draftStorage";
   import { encodeShareLink } from "../spei/application/shareLink";
   import { publishTransfer } from "../spei/application/transferChannel";
 
@@ -165,6 +181,8 @@ const destinationOptions: DestinationOption[] = [
   const copyLinkButton = queryRequired<HTMLButtonElement>("#copy-generated-link");
   const clabeInput = queryRequired<HTMLInputElement>("#clabe", form);
   const clabeHint = queryRequired("#clabe-hint", form);
+  const draftNotice = queryRequired<HTMLElement>("#draft-notice");
+  const clearDraftButton = queryRequired<HTMLButtonElement>("#clear-draft", draftNotice);
 
   function destinationErrorMessage(error: unknown): string {
     if (error instanceof InvalidClabeError) return CLABE_ERRORS[error.reason];
@@ -276,7 +294,43 @@ const destinationOptions: DestinationOption[] = [
     }
   }
 
+  function setFieldValue(field: FieldName, value: string | undefined): void {
+    queryRequired<HTMLInputElement>(`#${field}`, form).value = value ?? "";
+  }
+
+  function fillForm(data: SpeiTransferData): void {
+    const { type, value } = data.destination;
+    queryRequired<HTMLInputElement>(
+      `input[name="destinationType"][value="${type}"]`,
+      form,
+    ).checked = true;
+    setFieldValue("beneficiaryName", data.beneficiaryName);
+    setFieldValue(type, value);
+    if (type !== "clabe") setFieldValue("bankName", data.bankName);
+    for (const field of OPTIONAL_FIELDS) setFieldValue(field, data[field]);
+  }
+
+  function restoreDraft(): void {
+    const draft = loadDraft();
+    if (!draft) return;
+
+    fillForm(draft);
+    draftNotice.hidden = false;
+  }
+
+  function resetForm(): void {
+    clearDraft();
+    form.reset();
+    draftNotice.hidden = true;
+    output.hidden = true;
+    showErrors({});
+    showDestinationFields();
+    showDetectedBank();
+    publishTransfer(null);
+  }
+
   clabeInput.addEventListener("input", showDetectedBank);
+  clearDraftButton.addEventListener("click", resetForm);
   form.addEventListener("change", (event) => {
     if (event.target instanceof HTMLInputElement && event.target.name === "destinationType") {
       showDestinationFields();
@@ -300,8 +354,11 @@ const destinationOptions: DestinationOption[] = [
     linkInput.value = url.toString();
     copyLinkButton.dataset.copyValue = url.toString();
     output.hidden = false;
+    saveDraft(result.data);
     publishTransfer({ data: result.data, url });
   });
 
+  restoreDraft();
   showDestinationFields();
+  showDetectedBank();
 </script>
