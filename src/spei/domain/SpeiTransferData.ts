@@ -1,5 +1,7 @@
+export type DestinationType = "clabe" | "card" | "account";
+
 export type TransferDestination = {
-  type: "clabe";
+  type: DestinationType;
   value: string;
 };
 

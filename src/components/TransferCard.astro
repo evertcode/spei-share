@@ -2,12 +2,16 @@
 import { es } from "../i18n/es";
 import CopyButton from "./CopyButton.astro";
 
-type Row = { field: "beneficiaryName" | "bankName" | "clabe"; label: string; mono: boolean };
+type Row = {
+  field: "beneficiaryName" | "bankName" | "destination";
+  label: string;
+  mono: boolean;
+};
 
 const rows: Row[] = [
   { field: "beneficiaryName", label: es.view.beneficiaryName.label, mono: false },
   { field: "bankName", label: es.view.bank.label, mono: false },
-  { field: "clabe", label: es.view.clabe.label, mono: true },
+  { field: "destination", label: es.view.clabe.label, mono: true },
 ];
 ---
 
@@ -41,11 +45,19 @@ const rows: Row[] = [
 
 <script>
   import { queryRequired } from "../dom/queryRequired";
-  import { Clabe } from "../spei/domain/Clabe";
+  import { es } from "../i18n/es";
+  import type { DestinationType } from "../spei/domain/SpeiTransferData";
+  import { formatTransferDestination } from "../spei/domain/transferDestination";
   import { InvalidShareLinkError } from "../spei/application/InvalidShareLinkError";
   import { decodeShareLink } from "../spei/application/shareLink";
 
-  type DisplayValue = { display: string; copy: string };
+  type DisplayValue = { display: string; copy: string; label?: string };
+
+  const DESTINATION_LABELS: Record<DestinationType, string> = {
+    clabe: es.view.clabe.label,
+    card: es.view.card.label,
+    account: es.view.account.label,
+  };
 
   const card = queryRequired<HTMLElement>("#transfer-card");
   const invalidLink = queryRequired<HTMLElement>("#invalid-link");
@@ -55,22 +67,30 @@ const rows: Row[] = [
     row.hidden = value === undefined;
     if (!value) return;
 
-    const { display, copy } = value;
+    const { display, copy, label } = value;
+    const copyButton = queryRequired<HTMLButtonElement>("[data-copy-button]", row);
     queryRequired("[data-value]", row).textContent = display;
-    queryRequired<HTMLButtonElement>("[data-copy-button]", row).dataset.copyValue = copy;
+    copyButton.dataset.copyValue = copy;
+    if (label) {
+      queryRequired("dt", row).textContent = label;
+      copyButton.setAttribute("aria-label", `${es.copy.action} ${label}`);
+    }
   }
 
   function render(): void {
     try {
       const data = decodeShareLink(window.location.hash);
-      const clabe = Clabe.create(data.destination.value);
 
       fillRow("beneficiaryName", { display: data.beneficiaryName, copy: data.beneficiaryName });
       fillRow(
         "bankName",
         data.bankName ? { display: data.bankName, copy: data.bankName } : undefined,
       );
-      fillRow("clabe", { display: clabe.formatted(), copy: clabe.value });
+      fillRow("destination", {
+        display: formatTransferDestination(data.destination),
+        copy: data.destination.value,
+        label: DESTINATION_LABELS[data.destination.type],
+      });
       card.hidden = false;
       invalidLink.hidden = true;
     } catch (error) {

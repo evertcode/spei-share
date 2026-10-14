@@ -1,46 +1,68 @@
 ---
 import { es } from "../i18n/es";
+import type { DestinationType } from "../spei/domain/SpeiTransferData";
 import CopyButton from "./CopyButton.astro";
+import TextField from "./TextField.astro";
 
-const inputClass =
-  "w-full rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700/30 focus:outline-none aria-invalid:border-red-600";
+type DestinationOption = { type: DestinationType; label: string };
+
+const destinationOptions: DestinationOption[] = [
+  { type: "clabe", label: es.form.destinationType.clabe },
+  { type: "card", label: es.form.destinationType.card },
+  { type: "account", label: es.form.destinationType.account },
+];
 ---
 
 <form id="transfer-form" novalidate class="space-y-5">
-  <div class="space-y-1">
-    <label for="beneficiaryName" class="block text-sm font-medium">
-      {es.form.beneficiaryName.label}
-    </label>
-    <input
-      id="beneficiaryName"
-      name="beneficiaryName"
-      type="text"
-      autocomplete="name"
-      required
-      aria-describedby="beneficiaryName-error"
-      class={inputClass}
-    />
-    <p id="beneficiaryName-error" class="text-sm text-red-700" aria-live="polite"></p>
-  </div>
+  <TextField id="beneficiaryName" label={es.form.beneficiaryName.label} autocomplete="name" />
 
-  <div class="space-y-1">
-    <label for="clabe" class="block text-sm font-medium">
-      {es.form.clabe.label}
-    </label>
-    <input
-      id="clabe"
-      name="clabe"
-      type="text"
-      inputmode="numeric"
-      autocomplete="off"
-      placeholder={es.form.clabe.placeholder}
-      required
-      aria-describedby="clabe-bank clabe-error"
-      class={`${inputClass} font-mono`}
-    />
-    <p id="clabe-bank" class="text-sm text-slate-600" aria-live="polite"></p>
-    <p id="clabe-error" class="text-sm text-red-700" aria-live="polite"></p>
-  </div>
+  <fieldset class="space-y-2">
+    <legend class="text-sm font-medium">{es.form.destinationType.label}</legend>
+    <div class="flex flex-wrap gap-2">
+      {destinationOptions.map(({ type, label }) => (
+        <label class="flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm has-checked:border-teal-700 has-checked:bg-teal-50">
+          <input
+            type="radio"
+            name="destinationType"
+            value={type}
+            checked={type === "clabe"}
+            class="accent-teal-700"
+          />
+          {label}
+        </label>
+      ))}
+    </div>
+  </fieldset>
+
+  <TextField
+    id="clabe"
+    label={es.form.clabe.label}
+    placeholder={es.form.clabe.placeholder}
+    inputmode="numeric"
+    mono
+    hint
+    showFor="clabe"
+  />
+  <TextField
+    id="card"
+    label={es.form.card.label}
+    placeholder={es.form.card.placeholder}
+    inputmode="numeric"
+    autocomplete="cc-number"
+    mono
+    showFor="card"
+    hidden
+  />
+  <TextField
+    id="account"
+    label={es.form.account.label}
+    placeholder={es.form.account.placeholder}
+    inputmode="numeric"
+    mono
+    showFor="account"
+    hidden
+  />
+  <TextField id="bankName" label={es.form.bankName.label} showFor="card account" hidden />
 
   <button
     type="submit"
@@ -69,19 +91,37 @@ const inputClass =
   import { queryRequired } from "../dom/queryRequired";
   import { es } from "../i18n/es";
   import { Clabe } from "../spei/domain/Clabe";
+  import { InvalidAccountNumberError } from "../spei/domain/InvalidAccountNumberError";
+  import { InvalidCardNumberError } from "../spei/domain/InvalidCardNumberError";
   import { InvalidClabeError } from "../spei/domain/InvalidClabeError";
   import { findBankByCode } from "../spei/domain/banks";
-  import type { SpeiTransferData } from "../spei/domain/SpeiTransferData";
+  import type {
+    DestinationType,
+    SpeiTransferData,
+    TransferDestination,
+  } from "../spei/domain/SpeiTransferData";
+  import { createTransferDestination, isDestinationType } from "../spei/domain/transferDestination";
   import { encodeShareLink } from "../spei/application/shareLink";
 
-  type FieldName = "beneficiaryName" | "clabe";
+  type FieldName = "beneficiaryName" | DestinationType | "bankName";
   type FieldErrors = Partial<Record<FieldName, string>>;
   type ValidationResult = { ok: true; data: SpeiTransferData } | { ok: false; errors: FieldErrors };
+
+  const FIELDS: readonly FieldName[] = ["beneficiaryName", "clabe", "card", "account", "bankName"];
 
   const CLABE_ERRORS: Record<InvalidClabeError["reason"], string> = {
     length: es.errors.clabe.length,
     non_numeric: es.errors.clabe.nonNumeric,
     check_digit: es.errors.clabe.checkDigit,
+  };
+  const CARD_ERRORS: Record<InvalidCardNumberError["reason"], string> = {
+    length: es.errors.card.length,
+    non_numeric: es.errors.nonNumeric,
+    checksum: es.errors.card.checksum,
+  };
+  const ACCOUNT_ERRORS: Record<InvalidAccountNumberError["reason"], string> = {
+    length: es.errors.account.length,
+    non_numeric: es.errors.nonNumeric,
   };
 
   const form = queryRequired<HTMLFormElement>("#transfer-form");
@@ -89,7 +129,19 @@ const inputClass =
   const linkInput = queryRequired<HTMLInputElement>("#generatedLink");
   const copyLinkButton = queryRequired<HTMLButtonElement>("#copy-generated-link");
   const clabeInput = queryRequired<HTMLInputElement>("#clabe", form);
-  const clabeBank = queryRequired("#clabe-bank", form);
+  const clabeHint = queryRequired("#clabe-hint", form);
+
+  function destinationErrorMessage(error: unknown): string {
+    if (error instanceof InvalidClabeError) return CLABE_ERRORS[error.reason];
+    if (error instanceof InvalidCardNumberError) return CARD_ERRORS[error.reason];
+    if (error instanceof InvalidAccountNumberError) return ACCOUNT_ERRORS[error.reason];
+    throw error;
+  }
+
+  function selectedDestinationType(): DestinationType {
+    const value = new FormData(form).get("destinationType");
+    return isDestinationType(value) ? value : "clabe";
+  }
 
   function tryCreateClabe(value: string): Clabe | undefined {
     try {
@@ -107,57 +159,76 @@ const inputClass =
   function showDetectedBank(): void {
     const clabe = tryCreateClabe(clabeInput.value);
     if (!clabe) {
-      clabeBank.textContent = "";
+      clabeHint.textContent = "";
       return;
     }
 
     const bankName = bankNameOf(clabe);
-    clabeBank.textContent = bankName
+    clabeHint.textContent = bankName
       ? es.form.clabe.detectedBank.replace("{bankName}", bankName)
       : es.form.clabe.unknownBank;
   }
 
+  function showDestinationFields(): void {
+    const type = selectedDestinationType();
+    for (const field of form.querySelectorAll<HTMLElement>("[data-show-for]")) {
+      field.hidden = !(field.dataset.showFor ?? "").split(" ").includes(type);
+    }
+  }
+
   function validate(formData: FormData): ValidationResult {
     const errors: FieldErrors = {};
+    const type = selectedDestinationType();
     const beneficiaryName = String(formData.get("beneficiaryName") ?? "").trim();
-    const rawClabe = String(formData.get("clabe") ?? "").trim();
+    const rawDestination = String(formData.get(type) ?? "").trim();
 
     if (beneficiaryName === "") errors.beneficiaryName = es.errors.required;
 
-    let clabe: Clabe | undefined;
-    if (rawClabe === "") {
-      errors.clabe = es.errors.required;
+    let destination: TransferDestination | undefined;
+    if (rawDestination === "") {
+      errors[type] = es.errors.required;
     } else {
       try {
-        clabe = Clabe.create(rawClabe);
+        destination = createTransferDestination(type, rawDestination);
       } catch (error) {
-        if (!(error instanceof InvalidClabeError)) throw error;
-        errors.clabe = CLABE_ERRORS[error.reason];
+        errors[type] = destinationErrorMessage(error);
       }
     }
 
-    if (!clabe || Object.keys(errors).length > 0) return { ok: false, errors };
+    let bankName: string | undefined;
+    if (type === "clabe") {
+      bankName = destination ? bankNameOf(Clabe.create(destination.value)) : undefined;
+    } else {
+      bankName = String(formData.get("bankName") ?? "").trim();
+      if (bankName === "") errors.bankName = es.errors.required;
+    }
 
-    const data: SpeiTransferData = {
-      beneficiaryName,
-      destination: { type: "clabe", value: clabe.value },
-    };
-    const bankName = bankNameOf(clabe);
+    if (!destination || Object.keys(errors).length > 0) return { ok: false, errors };
+
+    const data: SpeiTransferData = { beneficiaryName, destination };
     if (bankName) data.bankName = bankName;
 
     return { ok: true, data };
   }
 
   function showErrors(errors: FieldErrors): void {
-    for (const field of ["beneficiaryName", "clabe"] as const) {
-      const input = queryRequired<HTMLInputElement>(`#${field}`, form);
+    for (const field of FIELDS) {
       const message = errors[field] ?? "";
       queryRequired(`#${field}-error`, form).textContent = message;
-      input.setAttribute("aria-invalid", String(message !== ""));
+      queryRequired<HTMLInputElement>(`#${field}`, form).setAttribute(
+        "aria-invalid",
+        String(message !== ""),
+      );
     }
   }
 
   clabeInput.addEventListener("input", showDetectedBank);
+  form.addEventListener("change", (event) => {
+    if (event.target instanceof HTMLInputElement && event.target.name === "destinationType") {
+      showDestinationFields();
+      showErrors({});
+    }
+  });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
@@ -175,4 +246,6 @@ const inputClass =
     copyLinkButton.dataset.copyValue = link;
     output.hidden = false;
   });
+
+  showDestinationFields();
 </script>

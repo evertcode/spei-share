@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T21:26:38Z"
+last_implementation_at: "2026-10-14T21:52:43Z"
 has_completed_all_phases: "false"
 ---
 
@@ -196,13 +196,19 @@ Let the user choose CLABE, debit card or account number as destination. For card
   - `class CardNumber { static create(value: string): CardNumber; readonly value: string; formatted(): string }`: 16 digits, Luhn check, throws `InvalidCardNumberError` (`reason: 'length' | 'non_numeric' | 'checksum'`). `formatted()` groups as `XXXX XXXX XXXX XXXX`.
   - `class AccountNumber { static create(value: string): AccountNumber; readonly value: string }`: 10 or 11 digits, throws `InvalidAccountNumberError` (`reason: 'length' | 'non_numeric'`).
   - `bankName` is required when destination type is `card` or `account`.
+  - `src/spei/domain/transferDestination.ts`: `isDestinationType(value: unknown): value is DestinationType`, `createTransferDestination(type: DestinationType, value: string): TransferDestination` and `formatTransferDestination(destination: TransferDestination): string`, shared by the form, the card and the share link decoder.
+- Components:
+  - `TextField.astro`: reusable labelled input with optional hint, error message and `showFor` visibility by destination type.
+  - `TransferCard.astro`: the destination row label and copy button label change with the destination type ("CLABE", "Tarjeta", "Cuenta").
 - UI copies:
   - `form.destinationType.label`: "Tipo de destino"
   - `form.destinationType.clabe`: "CLABE"
   - `form.destinationType.card`: "Tarjeta de débito"
   - `form.destinationType.account`: "Número de cuenta"
   - `form.card.label`: "Número de tarjeta"
+  - `form.card.placeholder`: "16 dígitos"
   - `form.account.label`: "Número de cuenta"
+  - `form.account.placeholder`: "10 u 11 dígitos"
   - `form.bankName.label`: "Banco"
   - `errors.card.length`: "La tarjeta debe tener 16 dígitos"
   - `errors.card.checksum`: "El número de tarjeta no es válido"
@@ -215,12 +221,17 @@ Let the user choose CLABE, debit card or account number as destination. For card
     - `creates a card number with a valid luhn checksum`
     - `fails when the luhn checksum is wrong`
     - `fails when length is not 16`
+    - `fails with non numeric characters`
     - `formats the card in groups of 4`
   - `tests/unit/spei/domain/AccountNumber.test.ts`
     - `creates an account number with 10 digits`
     - `creates an account number with 11 digits`
     - `fails with any other length`
     - `fails with non numeric characters`
+  - `tests/unit/spei/domain/transferDestination.test.ts`
+    - `creates a normalized destination for each type`
+    - `formats the destination according to its type`
+    - `recognizes only supported destination types`
   - `tests/unit/spei/application/shareLink.test.ts` (modified)
     - `encodes and decodes a card destination`
     - `fails decoding a card destination without bank name`
@@ -230,12 +241,12 @@ Let the user choose CLABE, debit card or account number as destination. For card
 
 ### To-do
 
-- [ ] Create `CardNumber`, `AccountNumber` and their errors with unit tests.
-- [ ] Extend `TransferDestination` and `decodeShareLink` validation, update unit tests.
-- [ ] Add destination type selector and manual bank field to `TransferForm.astro`, render the right label in `TransferCard.astro`.
-- [ ] Update e2e tests.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Create `CardNumber`, `AccountNumber` and their errors with unit tests.
+- [x] Extend `TransferDestination` and `decodeShareLink` validation, update unit tests.
+- [x] Add destination type selector and manual bank field to `TransferForm.astro`, render the right label in `TransferCard.astro`.
+- [x] Update e2e tests.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 5: Optional fields: concept, amount, RFC and email
 
@@ -374,6 +385,6 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 # ⏭️ Next step
 
-Implement Phase 4: alternative destination with debit card or account number.
+Implement Phase 5: optional fields for concept, amount, RFC and email.
 
-Every digit checked and every bank recognized, the turtle walks in with a magnifying glass thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 🏦
+CLABE, card or account: the turtle now has three doors into the bank, all thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 🏦

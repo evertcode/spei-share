@@ -62,6 +62,33 @@ test("shows the bank in the shared card", async ({ page }) => {
   await expect(page.getByText("BBVA México", { exact: true })).toBeVisible();
 });
 
+test("creates a link with a debit card destination", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
+  await page.getByRole("radio", { name: "Tarjeta de débito" }).check();
+  await page.getByRole("textbox", { name: "Número de tarjeta" }).fill("4111 1111 1111 1111");
+  await page.getByRole("textbox", { name: "Banco", exact: true }).fill("Nu México");
+  await page.getByRole("button", { name: "Generar enlace" }).click();
+
+  await page.goto(await page.getByLabel("Tu enlace para compartir", { exact: true }).inputValue());
+
+  await expect(page.getByText("4111 1111 1111 1111")).toBeVisible();
+  await expect(page.getByText("Nu México", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copiar Tarjeta" })).toBeVisible();
+});
+
+test("shows an error for an invalid card number", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
+  await page.getByRole("radio", { name: "Tarjeta de débito" }).check();
+  await page.getByRole("textbox", { name: "Número de tarjeta" }).fill("4111111111111112");
+  await page.getByRole("textbox", { name: "Banco", exact: true }).fill("Nu México");
+  await page.getByRole("button", { name: "Generar enlace" }).click();
+
+  await expect(page.getByText("El número de tarjeta no es válido")).toBeVisible();
+  await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 

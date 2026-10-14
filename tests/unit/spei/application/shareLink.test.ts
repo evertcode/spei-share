@@ -46,6 +46,23 @@ describe("shareLink", () => {
     expect(() => decodeShareLink("")).toThrow(InvalidShareLinkError);
   });
 
+  it("encodes and decodes a card destination", () => {
+    const data = transferData({
+      destination: { type: "card", value: "4111111111111111" },
+      bankName: "Nu México",
+    });
+
+    expect(decodeShareLink(encodeShareLink(data, BASE_URL).hash)).toEqual(data);
+  });
+
+  it("fails decoding a card destination without bank name", () => {
+    const hash = hashFor(
+      transferData({ destination: { type: "card", value: "4111111111111111" } }),
+    );
+
+    expect(() => decodeShareLink(hash)).toThrow(InvalidShareLinkError);
+  });
+
   it("fails decoding a payload with an invalid clabe", () => {
     const hash = hashFor(transferData({ destination: { type: "clabe", value: "123" } }));
 

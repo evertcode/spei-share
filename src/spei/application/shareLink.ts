@@ -1,4 +1,4 @@
-import { Clabe } from "../domain/Clabe";
+import { createTransferDestination, isDestinationType } from "../domain/transferDestination";
 import type { SpeiTransferData } from "../domain/SpeiTransferData";
 import { InvalidShareLinkError } from "./InvalidShareLinkError";
 
@@ -35,19 +35,23 @@ function toTransferData(payload: unknown): SpeiTransferData {
   if (typeof beneficiaryName !== "string" || beneficiaryName.trim() === "") {
     throw new Error("Missing beneficiary name");
   }
-  if (destination.type !== "clabe" || typeof destination.value !== "string") {
+  if (!isDestinationType(destination.type) || typeof destination.value !== "string") {
     throw new Error("Unsupported destination");
   }
-
   if (bankName !== undefined && typeof bankName !== "string") {
     throw new Error("Malformed bank name");
   }
 
+  const trimmedBankName = bankName?.trim();
+  if (destination.type !== "clabe" && !trimmedBankName) {
+    throw new Error("Missing bank name");
+  }
+
   const data: SpeiTransferData = {
     beneficiaryName: beneficiaryName.trim(),
-    destination: { type: "clabe", value: Clabe.create(destination.value).value },
+    destination: createTransferDestination(destination.type, destination.value),
   };
-  if (bankName?.trim()) data.bankName = bankName.trim();
+  if (trimmedBankName) data.bankName = trimmedBankName;
 
   return data;
 }

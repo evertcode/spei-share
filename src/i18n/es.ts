@@ -15,15 +15,32 @@ export const es = {
       detectedBank: "Banco: {bankName}",
       unknownBank: "Banco no identificado",
     },
+    destinationType: {
+      label: "Tipo de destino",
+      clabe: "CLABE",
+      card: "Tarjeta de débito",
+      account: "Número de cuenta",
+    },
+    card: { label: "Número de tarjeta", placeholder: "16 dígitos" },
+    account: { label: "Número de cuenta", placeholder: "10 u 11 dígitos" },
+    bankName: { label: "Banco" },
     submit: "Generar enlace",
     generatedLink: { label: "Tu enlace para compartir" },
   },
   errors: {
     required: "Este campo es obligatorio",
+    nonNumeric: "Solo se permiten números",
     clabe: {
       length: "La CLABE debe tener 18 dígitos",
       nonNumeric: "La CLABE solo puede contener números",
       checkDigit: "La CLABE no es válida, revisa el dígito verificador",
+    },
+    card: {
+      length: "La tarjeta debe tener 16 dígitos",
+      checksum: "El número de tarjeta no es válido",
+    },
+    account: {
+      length: "La cuenta debe tener 10 u 11 dígitos",
     },
   },
   view: {
@@ -33,6 +50,8 @@ export const es = {
     beneficiaryName: { label: "Beneficiario" },
     clabe: { label: "CLABE" },
     bank: { label: "Banco" },
+    card: { label: "Tarjeta" },
+    account: { label: "Cuenta" },
   },
   copy: {
     action: "Copiar",
