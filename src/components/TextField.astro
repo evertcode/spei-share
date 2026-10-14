@@ -31,8 +31,11 @@ const {
 const describedBy = [hint ? `${id}-hint` : undefined, `${id}-error`].filter(Boolean).join(" ");
 ---
 
-<div class="space-y-1" data-show-for={showFor} hidden={hidden}>
-  <label for={id} class="block text-sm font-medium">
+<div class="group/field" data-show-for={showFor} hidden={hidden}>
+  <label
+    for={id}
+    class="eyebrow block text-ink-muted transition-colors group-focus-within/field:text-accent"
+  >
     {label}
   </label>
   <input
@@ -45,10 +48,10 @@ const describedBy = [hint ? `${id}-hint` : undefined, `${id}-error`].filter(Bool
     required={required}
     aria-describedby={describedBy}
     class:list={[
-      "w-full rounded-md border border-slate-300 bg-white px-3 py-2 shadow-sm focus:border-teal-700 focus:ring-2 focus:ring-teal-700/30 focus:outline-none aria-invalid:border-red-600",
-      { "font-mono": mono },
+      "mt-1.5 w-full rounded-none border-0 border-b border-rule bg-transparent px-0 py-2 text-lg text-ink transition-[border-color,box-shadow] placeholder:text-ink-muted/45 hover:border-ink-muted focus:border-accent focus:shadow-[inset_0_-1px_0_var(--accent)] focus:outline-none aria-invalid:border-danger aria-invalid:shadow-[inset_0_-1px_0_var(--danger)]",
+      { "font-mono text-base tracking-wide": mono },
     ]}
   />
-  {hint && <p id={`${id}-hint`} class="text-sm text-slate-600" aria-live="polite" />}
-  <p id={`${id}-error`} class="text-sm text-red-700" aria-live="polite"></p>
+  {hint && <p id={`${id}-hint`} class="mt-2 text-sm text-accent empty:hidden" aria-live="polite" />}
+  <p id={`${id}-error`} class="mt-2 text-sm text-danger empty:hidden" aria-live="polite"></p>
 </div>

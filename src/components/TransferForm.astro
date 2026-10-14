@@ -16,32 +16,35 @@ const destinationOptions: DestinationOption[] = [
 <div
   id="draft-notice"
   hidden
-  class="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-teal-200 bg-teal-50 px-4 py-3 text-sm"
+  class="mb-10 flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3 text-sm"
 >
-  <p class="text-teal-900">{es.form.draft.restored}</p>
+  <p class="flex items-center gap-2.5 text-ink-muted">
+    <span class="size-1.5 rounded-full bg-accent" aria-hidden="true"></span>
+    {es.form.draft.restored}
+  </p>
   <button
     id="clear-draft"
     type="button"
-    class="font-medium text-teal-800 underline hover:text-teal-950 focus-visible:outline-2 focus-visible:outline-teal-700"
+    class="font-medium text-ink underline decoration-rule underline-offset-4 transition-colors hover:decoration-ink"
   >
     {es.form.draft.clear}
   </button>
 </div>
 
-<form id="transfer-form" novalidate class="space-y-5">
+<form id="transfer-form" novalidate class="space-y-9">
   <TextField id="beneficiaryName" label={es.form.beneficiaryName.label} autocomplete="name" />
 
-  <fieldset class="space-y-2">
-    <legend class="text-sm font-medium">{es.form.destinationType.label}</legend>
-    <div class="flex flex-wrap gap-2">
+  <fieldset>
+    <legend class="eyebrow mb-3 text-ink-muted">{es.form.destinationType.label}</legend>
+    <div class="grid grid-cols-3 divide-x divide-ink/15 border border-ink/15">
       {destinationOptions.map(({ type, label }) => (
-        <label class="flex cursor-pointer items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm has-checked:border-teal-700 has-checked:bg-teal-50">
+        <label class="relative flex cursor-pointer items-center justify-center px-2 py-3 text-center text-sm leading-tight text-ink-muted transition-colors select-none hover:bg-ink/4 hover:text-ink has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent">
           <input
             type="radio"
             name="destinationType"
             value={type}
             checked={type === "clabe"}
-            class="accent-teal-700"
+            class="absolute inset-0 m-0 cursor-pointer appearance-none opacity-0"
           />
           {label}
         </label>
@@ -79,8 +82,8 @@ const destinationOptions: DestinationOption[] = [
   />
   <TextField id="bankName" label={es.form.bankName.label} showFor="card account" hidden />
 
-  <fieldset class="space-y-4 rounded-lg border border-slate-200 p-4">
-    <legend class="px-1 text-sm font-semibold text-slate-700">{es.form.optional.heading}</legend>
+  <fieldset class="space-y-9 border-0 border-t border-rule pt-1">
+    <legend class="pr-4 font-display text-xl text-ink italic">{es.form.optional.heading}</legend>
     <TextField id="concept" label={es.form.concept.label} required={false} />
     <TextField
       id="amount"
@@ -101,22 +104,32 @@ const destinationOptions: DestinationOption[] = [
 
   <button
     type="submit"
-    class="w-full rounded-md bg-teal-700 px-4 py-2.5 font-semibold text-white hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
+    class="group flex w-full items-center justify-between rounded-sm bg-ink px-5 py-4 text-base font-medium text-paper transition-colors hover:bg-accent"
   >
     {es.form.submit}
+    <span
+      aria-hidden="true"
+      class="font-display text-2xl leading-none transition-transform group-hover:translate-x-1"
+    >
+      →
+    </span>
   </button>
 </form>
 
-<section id="generated-link" hidden class="mt-8 space-y-2">
-  <label for="generatedLink" class="block text-sm font-medium">
+<section
+  id="generated-link"
+  hidden
+  class="mt-10 border border-dashed border-ink/25 bg-paper-raised px-5 py-4"
+>
+  <label for="generatedLink" class="eyebrow block text-accent">
     {es.form.generatedLink.label}
   </label>
-  <div class="flex gap-2">
+  <div class="mt-2 flex items-center gap-3">
     <input
       id="generatedLink"
       type="url"
       readonly
-      class="w-full rounded-md border border-slate-300 bg-slate-100 px-3 py-2 text-sm"
+      class="min-w-0 flex-1 truncate border-0 bg-transparent p-0 font-mono text-sm text-ink focus:outline-none"
     />
     <CopyButton id="copy-generated-link" label={es.form.generatedLink.label} />
   </div>

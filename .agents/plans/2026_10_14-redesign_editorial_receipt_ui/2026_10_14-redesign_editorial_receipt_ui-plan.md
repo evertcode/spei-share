@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T22:57:04Z"
+last_implementation_at: "2026-10-14T23:10:25Z"
 has_completed_all_phases: "false"
 ---
 
@@ -93,7 +93,7 @@ Restyle the creation form so it feels like filling in a document.
 - Components:
   - `TextField.astro`: small-caps label, underline input (bottom rule that turns `accent` on focus and `danger` when `aria-invalid`), hint and error lines with tokens. Same props and ids.
   - `TransferForm.astro`:
-    - Destination type as a segmented control (radios visually hidden but accessible, `has-checked` styles).
+    - Destination type as a segmented control (`has-checked` styles). Radios are transparent `absolute inset-0` overlays inside a `relative` label instead of `sr-only`: they stay accessible and focusable, and Playwright can click them (clipped `sr-only` inputs are reported as outside the viewport).
     - Optional fields grouped under a hairline-ruled section with the existing legend.
     - Draft notice as a slim ruled banner.
     - Primary submit button in ink with arrow glyph (accessible name stays "Generar enlace").
@@ -103,12 +103,12 @@ Restyle the creation form so it feels like filling in a document.
 
 ### To-do
 
-- [ ] Restyle `TextField.astro` with underline inputs and token colors.
-- [ ] Restyle the destination selector as a segmented control keeping the radio inputs and names.
-- [ ] Restyle optional section, draft notice, submit button and generated link in `TransferForm.astro`.
-- [ ] Restyle `CopyButton.astro`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Restyle `TextField.astro` with underline inputs and token colors.
+- [x] Restyle the destination selector as a segmented control keeping the radio inputs and names.
+- [x] Restyle optional section, draft notice, submit button and generated link in `TransferForm.astro`.
+- [x] Restyle `CopyButton.astro`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 3: Shared page as a transfer receipt
 
@@ -210,6 +210,6 @@ Add dark theme values and a persisted toggle without flash of the wrong theme.
 
 # ⏭️ Next step
 
-Implement Phase 2: document-like form with underline fields, segmented destination control and ink submit button.
+Implement Phase 3: shared page as a transfer receipt.
 
-The turtle picked its paper and ink, and the first page is already printed thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜
+Paper and ink ready, the turtle has now filled in the form line by line thanks to [Codely](https://codely.com) 🐢 💨 🖋️ 📜 ✍️
