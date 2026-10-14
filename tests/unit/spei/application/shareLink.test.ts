@@ -63,6 +63,33 @@ describe("shareLink", () => {
     expect(() => decodeShareLink(hash)).toThrow(InvalidShareLinkError);
   });
 
+  it("encodes and decodes all optional fields", () => {
+    const data = transferData({
+      concept: "Renta octubre",
+      amount: "1500.00",
+      rfc: "GODE561231GR8",
+      email: "ada@example.com",
+    });
+
+    expect(decodeShareLink(encodeShareLink(data, BASE_URL).hash)).toEqual(data);
+  });
+
+  it("omits empty optional fields from the payload", () => {
+    const url = encodeShareLink(transferData({ concept: "", email: "  " }), BASE_URL);
+    const encoded = new URLSearchParams(url.hash.slice(1)).get("d") ?? "";
+    const payload: unknown = JSON.parse(atob(encoded.replace(/-/g, "+").replace(/_/g, "/")));
+
+    expect(payload).not.toHaveProperty("concept");
+    expect(payload).not.toHaveProperty("email");
+    expect(decodeShareLink(url.hash)).toEqual(transferData());
+  });
+
+  it("fails decoding a payload with an invalid optional field", () => {
+    expect(() => decodeShareLink(hashFor(transferData({ rfc: "invalid" })))).toThrow(
+      InvalidShareLinkError,
+    );
+  });
+
   it("fails decoding a payload with an invalid clabe", () => {
     const hash = hashFor(transferData({ destination: { type: "clabe", value: "123" } }));
 

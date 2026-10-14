@@ -64,6 +64,26 @@ const destinationOptions: DestinationOption[] = [
   />
   <TextField id="bankName" label={es.form.bankName.label} showFor="card account" hidden />
 
+  <fieldset class="space-y-4 rounded-lg border border-slate-200 p-4">
+    <legend class="px-1 text-sm font-semibold text-slate-700">{es.form.optional.heading}</legend>
+    <TextField id="concept" label={es.form.concept.label} required={false} />
+    <TextField
+      id="amount"
+      label={es.form.amount.label}
+      inputmode="decimal"
+      placeholder="0.00"
+      required={false}
+    />
+    <TextField id="rfc" label={es.form.rfc.label} mono required={false} />
+    <TextField
+      id="email"
+      label={es.form.email.label}
+      type="email"
+      autocomplete="email"
+      required={false}
+    />
+  </fieldset>
+
   <button
     type="submit"
     class="w-full rounded-md bg-teal-700 px-4 py-2.5 font-semibold text-white hover:bg-teal-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal-700"
@@ -92,22 +112,36 @@ const destinationOptions: DestinationOption[] = [
   import { es } from "../i18n/es";
   import { Clabe } from "../spei/domain/Clabe";
   import { InvalidAccountNumberError } from "../spei/domain/InvalidAccountNumberError";
+  import { InvalidAmountError } from "../spei/domain/InvalidAmountError";
   import { InvalidCardNumberError } from "../spei/domain/InvalidCardNumberError";
   import { InvalidClabeError } from "../spei/domain/InvalidClabeError";
+  import { InvalidConceptError } from "../spei/domain/InvalidConceptError";
+  import { InvalidEmailError } from "../spei/domain/InvalidEmailError";
+  import { InvalidRfcError } from "../spei/domain/InvalidRfcError";
   import { findBankByCode } from "../spei/domain/banks";
   import type {
     DestinationType,
+    OptionalField,
+    OptionalTransferFields,
     SpeiTransferData,
     TransferDestination,
   } from "../spei/domain/SpeiTransferData";
+  import { createOptionalField, OPTIONAL_FIELDS } from "../spei/domain/optionalFields";
   import { createTransferDestination, isDestinationType } from "../spei/domain/transferDestination";
   import { encodeShareLink } from "../spei/application/shareLink";
 
-  type FieldName = "beneficiaryName" | DestinationType | "bankName";
+  type FieldName = "beneficiaryName" | DestinationType | "bankName" | OptionalField;
   type FieldErrors = Partial<Record<FieldName, string>>;
   type ValidationResult = { ok: true; data: SpeiTransferData } | { ok: false; errors: FieldErrors };
 
-  const FIELDS: readonly FieldName[] = ["beneficiaryName", "clabe", "card", "account", "bankName"];
+  const FIELDS: readonly FieldName[] = [
+    "beneficiaryName",
+    "clabe",
+    "card",
+    "account",
+    "bankName",
+    ...OPTIONAL_FIELDS,
+  ];
 
   const CLABE_ERRORS: Record<InvalidClabeError["reason"], string> = {
     length: es.errors.clabe.length,
@@ -135,6 +169,14 @@ const destinationOptions: DestinationOption[] = [
     if (error instanceof InvalidClabeError) return CLABE_ERRORS[error.reason];
     if (error instanceof InvalidCardNumberError) return CARD_ERRORS[error.reason];
     if (error instanceof InvalidAccountNumberError) return ACCOUNT_ERRORS[error.reason];
+    throw error;
+  }
+
+  function optionalFieldErrorMessage(error: unknown): string {
+    if (error instanceof InvalidConceptError) return es.errors.concept.tooLong;
+    if (error instanceof InvalidAmountError) return es.errors.amount.invalid;
+    if (error instanceof InvalidRfcError) return es.errors.rfc.invalid;
+    if (error instanceof InvalidEmailError) return es.errors.email.invalid;
     throw error;
   }
 
@@ -203,9 +245,20 @@ const destinationOptions: DestinationOption[] = [
       if (bankName === "") errors.bankName = es.errors.required;
     }
 
+    const optionalFields: OptionalTransferFields = {};
+    for (const field of OPTIONAL_FIELDS) {
+      const raw = String(formData.get(field) ?? "").trim();
+      if (raw === "") continue;
+      try {
+        optionalFields[field] = createOptionalField(field, raw);
+      } catch (error) {
+        errors[field] = optionalFieldErrorMessage(error);
+      }
+    }
+
     if (!destination || Object.keys(errors).length > 0) return { ok: false, errors };
 
-    const data: SpeiTransferData = { beneficiaryName, destination };
+    const data: SpeiTransferData = { beneficiaryName, destination, ...optionalFields };
     if (bankName) data.bankName = bankName;
 
     return { ok: true, data };

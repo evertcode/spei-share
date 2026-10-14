@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T21:52:43Z"
+last_implementation_at: "2026-10-14T22:00:24Z"
 has_completed_all_phases: "false"
 ---
 
@@ -260,6 +260,10 @@ Add optional fields to the form and shared card. Empty fields are not encoded no
   - `class Amount { static create(value: string): Amount; formatted(): string }`: greater than 0, max 2 decimals, throws `InvalidAmountError`. `formatted()` returns MXN currency (`$1,234.50 MXN`).
   - `class Rfc { static create(value: string): Rfc }`: uppercased, 12 (persona moral) or 13 (persona física) characters matching SAT format, throws `InvalidRfcError`.
   - `class Email { static create(value: string): Email }`: basic format check, throws `InvalidEmailError`.
+  - `Amount.create` ignores spaces, commas and `$`, and stores the value with 2 decimals (`"1,234.5"` becomes `"1234.50"`). `InvalidAmountError.reason` is `'format' | 'not_positive'`.
+  - `type OptionalField = 'concept' | 'amount' | 'rfc' | 'email'` and `type OptionalTransferFields = Partial<Record<OptionalField, string>>` in `SpeiTransferData.ts`.
+  - `src/spei/domain/optionalFields.ts`: `OPTIONAL_FIELDS`, `createOptionalField(field: OptionalField, value: string): string` and `formatOptionalField(field: OptionalField, value: string): string`, shared by the form, the card and the share link codec.
+- Components: `TextField.astro` accepts `type` (`text` | `email`) and `required` props. Shared card copy buttons copy the raw amount (`1500.00`) while displaying it as currency.
 - UI copies:
   - `form.optional.heading`: "Datos opcionales"
   - `form.concept.label`: "Concepto"
@@ -291,21 +295,25 @@ Add optional fields to the form and shared card. Empty fields are not encoded no
   - `tests/unit/spei/domain/Email.test.ts`
     - `creates a valid email`
     - `fails with an invalid email`
+  - `tests/unit/spei/domain/optionalFields.test.ts`
+    - `normalizes each optional field`
+    - `formats the amount as currency and keeps other fields as is`
   - `tests/unit/spei/application/shareLink.test.ts` (modified)
     - `encodes and decodes all optional fields`
     - `omits empty optional fields from the payload`
+    - `fails decoding a payload with an invalid optional field`
   - `tests/e2e/share-flow.spec.ts` (modified)
     - `shows optional fields only when filled`
     - `shows an error for an invalid rfc`
 
 ### To-do
 
-- [ ] Create `Concept`, `Amount`, `Rfc`, `Email` and their errors with unit tests.
-- [ ] Extend `SpeiTransferData`, encoding (omit empties) and decoding validation, update unit tests.
-- [ ] Add optional fields section to `TransferForm.astro` and conditional rows to `TransferCard.astro`.
-- [ ] Update e2e tests.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Create `Concept`, `Amount`, `Rfc`, `Email` and their errors with unit tests.
+- [x] Extend `SpeiTransferData`, encoding (omit empties) and decoding validation, update unit tests.
+- [x] Add optional fields section to `TransferForm.astro` and conditional rows to `TransferCard.astro`.
+- [x] Update e2e tests.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 6: Sharing: QR code, Web Share API and copy all
 
@@ -385,6 +393,6 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 # ⏭️ Next step
 
-Implement Phase 5: optional fields for concept, amount, RFC and email.
+Implement Phase 6: sharing with QR code, Web Share API and copy all.
 
-CLABE, card or account: the turtle now has three doors into the bank, all thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 🏦
+The turtle now fills in the concept and the amount before knocking on the bank's door, thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 💳 📝 🏦

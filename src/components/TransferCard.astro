@@ -1,9 +1,10 @@
 ---
 import { es } from "../i18n/es";
+import type { OptionalField } from "../spei/domain/SpeiTransferData";
 import CopyButton from "./CopyButton.astro";
 
 type Row = {
-  field: "beneficiaryName" | "bankName" | "destination";
+  field: "beneficiaryName" | "bankName" | "destination" | OptionalField;
   label: string;
   mono: boolean;
 };
@@ -12,6 +13,10 @@ const rows: Row[] = [
   { field: "beneficiaryName", label: es.view.beneficiaryName.label, mono: false },
   { field: "bankName", label: es.view.bank.label, mono: false },
   { field: "destination", label: es.view.clabe.label, mono: true },
+  { field: "concept", label: es.view.concept.label, mono: false },
+  { field: "amount", label: es.view.amount.label, mono: false },
+  { field: "rfc", label: es.view.rfc.label, mono: true },
+  { field: "email", label: es.view.email.label, mono: false },
 ];
 ---
 
@@ -47,6 +52,7 @@ const rows: Row[] = [
   import { queryRequired } from "../dom/queryRequired";
   import { es } from "../i18n/es";
   import type { DestinationType } from "../spei/domain/SpeiTransferData";
+  import { formatOptionalField, OPTIONAL_FIELDS } from "../spei/domain/optionalFields";
   import { formatTransferDestination } from "../spei/domain/transferDestination";
   import { InvalidShareLinkError } from "../spei/application/InvalidShareLinkError";
   import { decodeShareLink } from "../spei/application/shareLink";
@@ -91,6 +97,13 @@ const rows: Row[] = [
         copy: data.destination.value,
         label: DESTINATION_LABELS[data.destination.type],
       });
+      for (const field of OPTIONAL_FIELDS) {
+        const value = data[field];
+        fillRow(
+          field,
+          value ? { display: formatOptionalField(field, value), copy: value } : undefined,
+        );
+      }
       card.hidden = false;
       invalidLink.hidden = true;
     } catch (error) {

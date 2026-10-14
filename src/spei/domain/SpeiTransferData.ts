@@ -5,8 +5,12 @@ export type TransferDestination = {
   value: string;
 };
 
+export type OptionalField = "concept" | "amount" | "rfc" | "email";
+
+export type OptionalTransferFields = Partial<Record<OptionalField, string>>;
+
 export type SpeiTransferData = {
   beneficiaryName: string;
   destination: TransferDestination;
   bankName?: string;
-};
+} & OptionalTransferFields;

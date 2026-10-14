@@ -24,6 +24,11 @@ export const es = {
     card: { label: "Número de tarjeta", placeholder: "16 dígitos" },
     account: { label: "Número de cuenta", placeholder: "10 u 11 dígitos" },
     bankName: { label: "Banco" },
+    optional: { heading: "Datos opcionales" },
+    concept: { label: "Concepto" },
+    amount: { label: "Monto (MXN)" },
+    rfc: { label: "RFC" },
+    email: { label: "Correo electrónico" },
     submit: "Generar enlace",
     generatedLink: { label: "Tu enlace para compartir" },
   },
@@ -42,6 +47,10 @@ export const es = {
     account: {
       length: "La cuenta debe tener 10 u 11 dígitos",
     },
+    concept: { tooLong: "El concepto no puede superar 40 caracteres" },
+    amount: { invalid: "Ingresa un monto mayor a 0 con máximo 2 decimales" },
+    rfc: { invalid: "RFC inválido" },
+    email: { invalid: "Correo electrónico inválido" },
   },
   view: {
     heading: "Datos para transferencia",
@@ -52,6 +61,10 @@ export const es = {
     bank: { label: "Banco" },
     card: { label: "Tarjeta" },
     account: { label: "Cuenta" },
+    concept: { label: "Concepto" },
+    amount: { label: "Monto" },
+    rfc: { label: "RFC" },
+    email: { label: "Correo" },
   },
   copy: {
     action: "Copiar",

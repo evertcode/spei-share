@@ -1,3 +1,4 @@
+import { createOptionalField, OPTIONAL_FIELDS } from "../domain/optionalFields";
 import { createTransferDestination, isDestinationType } from "../domain/transferDestination";
 import type { SpeiTransferData } from "../domain/SpeiTransferData";
 import { InvalidShareLinkError } from "./InvalidShareLinkError";
@@ -7,7 +8,9 @@ const DATA_PARAM = "d";
 
 export function encodeShareLink(data: SpeiTransferData, baseUrl: URL): URL {
   const url = new URL(SHARE_PATH, baseUrl);
-  const params = new URLSearchParams({ [DATA_PARAM]: toBase64Url(JSON.stringify(data)) });
+  const params = new URLSearchParams({
+    [DATA_PARAM]: toBase64Url(JSON.stringify(withoutEmptyFields(data))),
+  });
   url.hash = params.toString();
 
   return url;
@@ -53,7 +56,23 @@ function toTransferData(payload: unknown): SpeiTransferData {
   };
   if (trimmedBankName) data.bankName = trimmedBankName;
 
+  for (const field of OPTIONAL_FIELDS) {
+    const value = payload[field];
+    if (value === undefined) continue;
+    if (typeof value !== "string") throw new Error(`Malformed ${field}`);
+    if (value.trim() !== "") data[field] = createOptionalField(field, value);
+  }
+
   return data;
+}
+
+function withoutEmptyFields(data: SpeiTransferData): SpeiTransferData {
+  const { concept, amount, rfc, email, ...required } = data;
+  const optionalFields = Object.entries({ concept, amount, rfc, email }).filter(([, value]) =>
+    value?.trim(),
+  );
+
+  return { ...required, ...Object.fromEntries(optionalFields) };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

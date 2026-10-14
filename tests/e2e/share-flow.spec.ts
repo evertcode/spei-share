@@ -89,6 +89,34 @@ test("shows an error for an invalid card number", async ({ page }) => {
   await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
 });
 
+test("shows optional fields only when filled", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+  await page.getByLabel("Concepto").fill("Renta octubre");
+  await page.getByLabel("Monto (MXN)").fill("1500");
+  await page.getByRole("button", { name: "Generar enlace" }).click();
+
+  await page.goto(await page.getByLabel("Tu enlace para compartir", { exact: true }).inputValue());
+
+  await expect(page.getByText("Renta octubre")).toBeVisible();
+  await expect(page.getByText("$1,500.00 MXN")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copiar Concepto" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Copiar RFC" })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Copiar Correo" })).toBeHidden();
+});
+
+test("shows an error for an invalid rfc", async ({ page }) => {
+  await page.goto("/");
+  await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+  await page.getByLabel("RFC").fill("NOT-AN-RFC");
+  await page.getByRole("button", { name: "Generar enlace" }).click();
+
+  await expect(page.getByText("RFC inválido")).toBeVisible();
+  await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 
