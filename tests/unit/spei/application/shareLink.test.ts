@@ -28,6 +28,12 @@ describe("shareLink", () => {
     expect(decodeShareLink(url.hash)).toEqual(data);
   });
 
+  it("encodes and decodes the bank name", () => {
+    const data = transferData({ bankName: "BBVA México" });
+
+    expect(decodeShareLink(encodeShareLink(data, BASE_URL).hash)).toEqual(data);
+  });
+
   it("preserves accents and ñ in the beneficiary name", () => {
     const data = transferData({ beneficiaryName: "José Peña Muñoz" });
 

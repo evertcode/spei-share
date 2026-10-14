@@ -9,7 +9,12 @@ export const es = {
   },
   form: {
     beneficiaryName: { label: "Nombre del beneficiario" },
-    clabe: { label: "CLABE interbancaria", placeholder: "18 dígitos" },
+    clabe: {
+      label: "CLABE interbancaria",
+      placeholder: "18 dígitos",
+      detectedBank: "Banco: {bankName}",
+      unknownBank: "Banco no identificado",
+    },
     submit: "Generar enlace",
     generatedLink: { label: "Tu enlace para compartir" },
   },
@@ -18,6 +23,7 @@ export const es = {
     clabe: {
       length: "La CLABE debe tener 18 dígitos",
       nonNumeric: "La CLABE solo puede contener números",
+      checkDigit: "La CLABE no es válida, revisa el dígito verificador",
     },
   },
   view: {
@@ -26,6 +32,7 @@ export const es = {
     createOwn: "Crear mi propio enlace",
     beneficiaryName: { label: "Beneficiario" },
     clabe: { label: "CLABE" },
+    bank: { label: "Banco" },
   },
   copy: {
     action: "Copiar",

@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-14T21:22:31Z"
+last_implementation_at: "2026-10-14T21:26:38Z"
 has_completed_all_phases: "false"
 ---
 
@@ -153,8 +153,9 @@ Reject CLABEs with a wrong check digit and show the bank detected from the first
   - `InvalidClabeError.reason` adds `'check_digit'`.
   - `Clabe.bankCode: string` (first 3 digits).
   - `type Bank = { code: string; name: string }`.
-  - `findBankByCode(code: string): Bank | undefined` backed by `src/spei/domain/banks.ts` with the Banxico SPEI participants catalog.
-  - `SpeiTransferData` adds `bankName?: string` (filled automatically from the CLABE).
+  - `findBankByCode(code: string): Bank | undefined` backed by `src/spei/domain/banks.ts` with a curated subset of the Banxico SPEI participants catalog (unknown codes show "Banco no identificado"; review the list against the official Banxico catalog).
+  - `SpeiTransferData` adds `bankName?: string` (filled automatically from the CLABE, decoded as an optional trimmed string).
+- Components: `TransferCard.astro` adds a "Banco" row with its own copy button, hidden when there is no bank name.
 - UI copies:
   - `errors.clabe.checkDigit`: "La CLABE no es válida, revisa el dígito verificador"
   - `form.clabe.detectedBank`: "Banco: {bankName}"
@@ -168,6 +169,8 @@ Reject CLABEs with a wrong check digit and show the bank detected from the first
     - `finds BBVA México by code 012`
     - `finds Banamex by code 002`
     - `returns undefined for an unknown code`
+  - `tests/unit/spei/application/shareLink.test.ts` (modified)
+    - `encodes and decodes the bank name`
   - `tests/e2e/share-flow.spec.ts` (modified)
     - `shows the detected bank while typing a valid clabe`
     - `shows an error for a clabe with wrong check digit`
@@ -175,12 +178,12 @@ Reject CLABEs with a wrong check digit and show the bank detected from the first
 
 ### To-do
 
-- [ ] Add check digit validation and `bankCode` to `Clabe`, update unit tests (fix Phase 2 fixtures to valid CLABEs).
-- [ ] Create `banks.ts` catalog and `findBankByCode` with unit tests.
-- [ ] Show detected bank in `TransferForm.astro` and `TransferCard.astro`, include `bankName` in the encoded data.
-- [ ] Update e2e tests.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Add check digit validation and `bankCode` to `Clabe`, update unit tests (fix Phase 2 fixtures to valid CLABEs).
+- [x] Create `banks.ts` catalog and `findBankByCode` with unit tests.
+- [x] Show detected bank in `TransferForm.astro` and `TransferCard.astro`, include `bankName` in the encoded data.
+- [x] Update e2e tests.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 4: Alternative destination: debit card or account number
 
@@ -371,6 +374,6 @@ Prefill the form with the last data the user generated a link for, with an optio
 
 # ⏭️ Next step
 
-Implement Phase 3: CLABE check digit validation and bank auto-detection.
+Implement Phase 4: alternative destination with debit card or account number.
 
-The turtle now carries a link in its shell all the way to the bank thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🏦
+Every digit checked and every bank recognized, the turtle walks in with a magnifying glass thanks to [Codely](https://codely.com) 🧱 🐢 💨 🔗 🔍 🏦

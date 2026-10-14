@@ -1,4 +1,4 @@
-export type InvalidClabeReason = "length" | "non_numeric";
+export type InvalidClabeReason = "length" | "non_numeric" | "check_digit";
 
 export class InvalidClabeError extends Error {
   constructor(

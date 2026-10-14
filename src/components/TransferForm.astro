@@ -35,9 +35,10 @@ const inputClass =
       autocomplete="off"
       placeholder={es.form.clabe.placeholder}
       required
-      aria-describedby="clabe-error"
+      aria-describedby="clabe-bank clabe-error"
       class={`${inputClass} font-mono`}
     />
+    <p id="clabe-bank" class="text-sm text-slate-600" aria-live="polite"></p>
     <p id="clabe-error" class="text-sm text-red-700" aria-live="polite"></p>
   </div>
 
@@ -69,6 +70,7 @@ const inputClass =
   import { es } from "../i18n/es";
   import { Clabe } from "../spei/domain/Clabe";
   import { InvalidClabeError } from "../spei/domain/InvalidClabeError";
+  import { findBankByCode } from "../spei/domain/banks";
   import type { SpeiTransferData } from "../spei/domain/SpeiTransferData";
   import { encodeShareLink } from "../spei/application/shareLink";
 
@@ -79,12 +81,41 @@ const inputClass =
   const CLABE_ERRORS: Record<InvalidClabeError["reason"], string> = {
     length: es.errors.clabe.length,
     non_numeric: es.errors.clabe.nonNumeric,
+    check_digit: es.errors.clabe.checkDigit,
   };
 
   const form = queryRequired<HTMLFormElement>("#transfer-form");
   const output = queryRequired<HTMLElement>("#generated-link");
   const linkInput = queryRequired<HTMLInputElement>("#generatedLink");
   const copyLinkButton = queryRequired<HTMLButtonElement>("#copy-generated-link");
+  const clabeInput = queryRequired<HTMLInputElement>("#clabe", form);
+  const clabeBank = queryRequired("#clabe-bank", form);
+
+  function tryCreateClabe(value: string): Clabe | undefined {
+    try {
+      return Clabe.create(value);
+    } catch (error) {
+      if (!(error instanceof InvalidClabeError)) throw error;
+      return undefined;
+    }
+  }
+
+  function bankNameOf(clabe: Clabe): string | undefined {
+    return findBankByCode(clabe.bankCode)?.name;
+  }
+
+  function showDetectedBank(): void {
+    const clabe = tryCreateClabe(clabeInput.value);
+    if (!clabe) {
+      clabeBank.textContent = "";
+      return;
+    }
+
+    const bankName = bankNameOf(clabe);
+    clabeBank.textContent = bankName
+      ? es.form.clabe.detectedBank.replace("{bankName}", bankName)
+      : es.form.clabe.unknownBank;
+  }
 
   function validate(formData: FormData): ValidationResult {
     const errors: FieldErrors = {};
@@ -107,10 +138,14 @@ const inputClass =
 
     if (!clabe || Object.keys(errors).length > 0) return { ok: false, errors };
 
-    return {
-      ok: true,
-      data: { beneficiaryName, destination: { type: "clabe", value: clabe.value } },
+    const data: SpeiTransferData = {
+      beneficiaryName,
+      destination: { type: "clabe", value: clabe.value },
     };
+    const bankName = bankNameOf(clabe);
+    if (bankName) data.bankName = bankName;
+
+    return { ok: true, data };
   }
 
   function showErrors(errors: FieldErrors): void {
@@ -121,6 +156,8 @@ const inputClass =
       input.setAttribute("aria-invalid", String(message !== ""));
     }
   }
+
+  clabeInput.addEventListener("input", showDetectedBank);
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();

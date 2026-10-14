@@ -31,6 +31,14 @@ describe("Clabe", () => {
     expectInvalidClabe("01218000123456789A", "non_numeric");
   });
 
+  it("fails when the check digit is wrong", () => {
+    expectInvalidClabe("012180001234567890", "check_digit");
+  });
+
+  it("exposes the bank code", () => {
+    expect(Clabe.create(VALID_CLABE).bankCode).toBe("012");
+  });
+
   it("formats the clabe in groups", () => {
     expect(Clabe.create(VALID_CLABE).formatted()).toBe("012 180 00123456789 9");
   });

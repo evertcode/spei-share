@@ -2,10 +2,11 @@
 import { es } from "../i18n/es";
 import CopyButton from "./CopyButton.astro";
 
-type Row = { field: "beneficiaryName" | "clabe"; label: string; mono: boolean };
+type Row = { field: "beneficiaryName" | "bankName" | "clabe"; label: string; mono: boolean };
 
 const rows: Row[] = [
   { field: "beneficiaryName", label: es.view.beneficiaryName.label, mono: false },
+  { field: "bankName", label: es.view.bank.label, mono: false },
   { field: "clabe", label: es.view.clabe.label, mono: true },
 ];
 ---
@@ -49,8 +50,12 @@ const rows: Row[] = [
   const card = queryRequired<HTMLElement>("#transfer-card");
   const invalidLink = queryRequired<HTMLElement>("#invalid-link");
 
-  function fillRow(field: string, { display, copy }: DisplayValue): void {
+  function fillRow(field: string, value: DisplayValue | undefined): void {
     const row = queryRequired<HTMLElement>(`[data-row="${field}"]`, card);
+    row.hidden = value === undefined;
+    if (!value) return;
+
+    const { display, copy } = value;
     queryRequired("[data-value]", row).textContent = display;
     queryRequired<HTMLButtonElement>("[data-copy-button]", row).dataset.copyValue = copy;
   }
@@ -61,6 +66,10 @@ const rows: Row[] = [
       const clabe = Clabe.create(data.destination.value);
 
       fillRow("beneficiaryName", { display: data.beneficiaryName, copy: data.beneficiaryName });
+      fillRow(
+        "bankName",
+        data.bankName ? { display: data.bankName, copy: data.bankName } : undefined,
+      );
       fillRow("clabe", { display: clabe.formatted(), copy: clabe.value });
       card.hidden = false;
       invalidLink.hidden = true;

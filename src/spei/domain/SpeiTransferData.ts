@@ -6,4 +6,5 @@ export type TransferDestination = {
 export type SpeiTransferData = {
   beneficiaryName: string;
   destination: TransferDestination;
+  bankName?: string;
 };

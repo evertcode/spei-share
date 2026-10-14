@@ -31,7 +31,7 @@ function toTransferData(payload: unknown): SpeiTransferData {
     throw new Error("Malformed payload");
   }
 
-  const { beneficiaryName, destination } = payload;
+  const { beneficiaryName, destination, bankName } = payload;
   if (typeof beneficiaryName !== "string" || beneficiaryName.trim() === "") {
     throw new Error("Missing beneficiary name");
   }
@@ -39,10 +39,17 @@ function toTransferData(payload: unknown): SpeiTransferData {
     throw new Error("Unsupported destination");
   }
 
-  return {
+  if (bankName !== undefined && typeof bankName !== "string") {
+    throw new Error("Malformed bank name");
+  }
+
+  const data: SpeiTransferData = {
     beneficiaryName: beneficiaryName.trim(),
     destination: { type: "clabe", value: Clabe.create(destination.value).value },
   };
+  if (bankName?.trim()) data.bankName = bankName.trim();
+
+  return data;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

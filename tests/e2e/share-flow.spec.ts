@@ -40,6 +40,28 @@ test("shows an error for a clabe with wrong length", async ({ page }) => {
   await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
 });
 
+test("shows the detected bank while typing a valid clabe", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+
+  await expect(page.getByText("Banco: BBVA México")).toBeVisible();
+});
+
+test("shows an error for a clabe with wrong check digit", async ({ page }) => {
+  await createLink(page, "012180001234567890");
+
+  await expect(page.getByText("La CLABE no es válida, revisa el dígito verificador")).toBeVisible();
+  await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
+});
+
+test("shows the bank in the shared card", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(page.getByRole("button", { name: "Copiar Banco" })).toBeVisible();
+  await expect(page.getByText("BBVA México", { exact: true })).toBeVisible();
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 
