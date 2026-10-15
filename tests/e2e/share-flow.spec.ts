@@ -67,7 +67,7 @@ test("creates a link with a debit card destination", async ({ page }) => {
   await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
   await page.getByRole("radio", { name: "Tarjeta de débito" }).check();
   await page.getByRole("textbox", { name: "Número de tarjeta" }).fill("4111 1111 1111 1111");
-  await page.getByRole("textbox", { name: "Banco", exact: true }).fill("Nu México");
+  await page.getByLabel("Banco", { exact: true }).fill("Nu México");
   await page.getByRole("button", { name: "Generar enlace" }).click();
 
   await page.goto(await page.getByLabel("Tu enlace para compartir", { exact: true }).inputValue());
@@ -82,7 +82,7 @@ test("shows an error for an invalid card number", async ({ page }) => {
   await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
   await page.getByRole("radio", { name: "Tarjeta de débito" }).check();
   await page.getByRole("textbox", { name: "Número de tarjeta" }).fill("4111111111111112");
-  await page.getByRole("textbox", { name: "Banco", exact: true }).fill("Nu México");
+  await page.getByLabel("Banco", { exact: true }).fill("Nu México");
   await page.getByRole("button", { name: "Generar enlace" }).click();
 
   await expect(page.getByText("El número de tarjeta no es válido")).toBeVisible();
@@ -149,6 +149,44 @@ test("does not animate when reduced motion is requested", async ({ page }) => {
     .evaluate((element) => getComputedStyle(element).animationName);
 
   expect(animationName).toBe("none");
+});
+
+test("validates a field when leaving it", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByLabel("CLABE interbancaria").fill("12345");
+  await page.getByLabel("CLABE interbancaria").press("Tab");
+
+  await expect(page.getByText("La CLABE debe tener 18 dígitos")).toBeVisible();
+
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+  await expect(page.getByText("La CLABE debe tener 18 dígitos")).toBeHidden();
+});
+
+test("focuses the first invalid field on submit", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Generar enlace" }).click();
+
+  await expect(page.getByLabel("Nombre del beneficiario")).toBeFocused();
+});
+
+test("hides the generated link when the form changes", async ({ page }) => {
+  await createLink(page);
+
+  await page.getByLabel("Concepto").fill("Renta");
+
+  await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
+  await expect(page.getByText("Cambiaste datos, vuelve a generar el enlace")).toBeVisible();
+});
+
+test("formats the clabe when leaving the field", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+  await page.getByLabel("CLABE interbancaria").press("Tab");
+
+  await expect(page.getByLabel("CLABE interbancaria")).toHaveValue("012 180 00123456789 9");
 });
 
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {

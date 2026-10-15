@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-15T00:20:03Z"
+last_implementation_at: "2026-10-15T00:33:52Z"
 has_completed_all_phases: "false"
 ---
 
@@ -88,17 +88,20 @@ Validate and format as the user goes, keep the generated link in sync with the f
     - `validateTransferForm(values: TransferFormValues): TransferFormResult` (logic moved out of `TransferForm.astro`, messages from `es`).
     - `validateTransferField(field: TransferFormField, values: TransferFormValues): string | undefined`
     - `formatTransferField(field: TransferFormField, value: string): string`: display formatting on blur (CLABE groups, card groups of 4, amount `1,500.00`, RFC uppercase), returns the input unchanged when invalid.
+    - Also exported: `TRANSFER_FORM_FIELDS`, `TransferFormErrors`, `emptyTransferFormValues()` and `isActiveField(field, values)` (hidden destination fields and `bankName` for CLABE are ignored by validation).
   - `src/spei/application/draftStorage.ts` (replaces the current functions):
     - `saveFormDraft(values: TransferFormValues, storage?): void`, `loadFormDraft(storage?): TransferFormValues | null`, `clearFormDraft(storage?): void`.
     - Key `spei-share:draft:v2` (raw values, saved on input, debounced). Drafts under `v1` are ignored.
 - Domain: `listBanks(): readonly Bank[]` in `banks.ts`.
 - Components:
-  - `TextField.astro`: new props `maxlength`, `autocapitalize`, `spellcheck`, `enterkeyhint`, `counter` (renders `n/max` linked through `aria-describedby`), and `list` (datalist id).
+  - `TextField.astro`: new props `maxlength`, `autocapitalize`, `spellcheck`, `enterkeyhint` (default `next`), `counter` (renders `n/max` linked through `aria-describedby`), `list` (datalist id) and `uppercase`.
   - `TransferForm.astro`:
     - Validates a field on blur and clears its error on input once valid; on invalid submit focuses the first invalid field.
     - Formats CLABE, card, amount and RFC on blur; `maxlength` on CLABE (22), card (19), account (11), concept (40, with counter), RFC (13); RFC shown uppercase.
     - Bank field for card and account suggests banks through a `<datalist>`.
-    - On success focuses `#generatedLink`, scrolls it into view and announces the ready status.
+    - On success focuses `#generatedLink`, scrolls it into view and announces the ready status through a visually hidden `#form-status` (`role="status"`).
+    - Stale notice is `#generated-link-stale` (`role="status"`), rendered after the form.
+    - Draft restore formats values with `formatTransferField` and is skipped when every field is empty.
     - Editing any field after generating hides the link and share actions and shows the stale notice.
     - Draft autosaves on input; "Empezar de nuevo" clears form and draft and focuses the first field.
 - UI copies:
@@ -117,10 +120,12 @@ Validate and format as the user goes, keep the generated link in sync with the f
     - `saves and loads raw form values`
     - `returns null when there is no draft`
     - `returns null when the draft is corrupted`
+    - `returns null when the draft has an unknown destination type`
     - `returns null when storage throws`
     - `clears the draft`
   - `tests/unit/spei/domain/banks.test.ts` (modified)
     - `lists every bank in the catalog`
+  - E2E specs locate the bank field with `getByLabel("Banco", { exact: true })`: with the `<datalist>` its role is `combobox`, no longer `textbox`.
   - `tests/e2e/draft.spec.ts` (modified)
     - `prefills the form after reloading` (no link generation needed)
     - `starts over clearing the form and the draft`
@@ -132,15 +137,15 @@ Validate and format as the user goes, keep the generated link in sync with the f
 
 ### To-do
 
-- [ ] Extract `validateTransferForm`, `validateTransferField` and `formatTransferField` with unit tests.
-- [ ] Replace draft storage with raw form value drafts (`v2`) and update its unit tests.
-- [ ] Add `listBanks` and the new `TextField` props.
-- [ ] Wire blur validation, error clearing, focus on first invalid field, blur formatting, counters, datalist and uppercase RFC in `TransferForm.astro`.
-- [ ] Focus, scroll and announce the generated link; hide it with the stale notice when the form changes.
-- [ ] Autosave drafts on input, rename the reset action and move focus after reset.
-- [ ] Update `draft.spec.ts` and `share-flow.spec.ts`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Extract `validateTransferForm`, `validateTransferField` and `formatTransferField` with unit tests.
+- [x] Replace draft storage with raw form value drafts (`v2`) and update its unit tests.
+- [x] Add `listBanks` and the new `TextField` props.
+- [x] Wire blur validation, error clearing, focus on first invalid field, blur formatting, counters, datalist and uppercase RFC in `TransferForm.astro`.
+- [x] Focus, scroll and announce the generated link; hide it with the stale notice when the form changes.
+- [x] Autosave drafts on input, rename the reset action and move focus after reset.
+- [x] Update `draft.spec.ts` and `share-flow.spec.ts`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 3: Payer-focused shared page
 
@@ -229,6 +234,6 @@ Announce copy results, handle failures, hide unsupported actions and make links 
 
 # ⏭️ Next step
 
-Implement Phase 2: guided creation form.
+Implement Phase 3: payer-focused shared page.
 
-Every door now has a ramp and a clear sign, the turtle checked them one by one thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿
+Ramps in place, the turtle now walks every visitor through the form step by step thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿ 🧭

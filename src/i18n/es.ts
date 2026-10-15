@@ -45,10 +45,14 @@ export const es = {
     rfc: { label: "RFC" },
     email: { label: "Correo electrónico" },
     submit: "Generar enlace",
-    generatedLink: { label: "Tu enlace para compartir" },
+    generatedLink: {
+      label: "Tu enlace para compartir",
+      ready: "Enlace generado",
+      stale: "Cambiaste datos, vuelve a generar el enlace",
+    },
     draft: {
       restored: "Recuperamos tus últimos datos",
-      clear: "Borrar datos guardados",
+      clear: "Empezar de nuevo",
     },
   },
   errors: {
