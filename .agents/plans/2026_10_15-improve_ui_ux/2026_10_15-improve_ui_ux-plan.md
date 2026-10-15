@@ -17,8 +17,8 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-15T00:46:36Z"
-has_completed_all_phases: "false"
+last_implementation_at: "2026-10-15T01:14:11Z"
+has_completed_all_phases: "true"
 ---
 
 # 🎯 Goal
@@ -190,22 +190,23 @@ Announce copy results, handle failures, hide unsupported actions and make links 
 
 ### Public contracts
 
-- DOM helpers: `src/dom/announce.ts` with `announce(message: string): void` writing into a visually hidden `#announcer` (`role="status"`) rendered by `BaseLayout.astro`.
+- DOM helpers: `src/dom/announce.ts` with `announce(message: string): void` writing into a visually hidden `#announcer` (`role="status"`) rendered by `BaseLayout.astro`. The form's "Enlace generado" announcement now uses it too (the Phase 2 `#form-status` region was removed).
 - Application:
   - `formatShareText(data: SpeiTransferData, url: URL): string` in `formatTransferText.ts`, used by "Copiar todo" and by the `shareTransfer` fallback.
   - `qrFileName(destination: TransferDestination): string`: `spei-<last 4 digits>.svg`.
 - Components:
-  - `CopyButton.astro`: try/catch around the clipboard call, announces success or failure, clears the previous feedback timer.
+  - `CopyButton.astro`: try/catch around the clipboard call, announces success ("{label} copiado", label from a new `data-copy-label` attribute kept in sync by `TransferCard.astro`) or failure, shows "Error al copiar" in `danger` on the button (`data-copy-failed`), and clears the previous feedback timer per button.
   - `ShareActions.astro`: `#native-share` hidden when `navigator.share` is unavailable; non-abort share errors show a message; QR caption; download filename from `qrFileName`.
   - `BaseLayout.astro`: props `description?: string` and `noindex?: boolean`; Open Graph (`og:title`, `og:description`, `og:type`, `og:locale`) and `twitter:card` tags; `#announcer`.
   - `ver.astro`: payer-oriented description and `noindex`.
-- Styles: `@media print` hides header, footer, copy buttons and share actions and removes the receipt shadow.
+- Styles: print styles use Tailwind `print:` variants instead of a `@media print` block: `print:hidden` on the site header, footer, copy buttons, share actions and the create-your-own prompt, and `print:[filter:none]` on the receipt shadow.
 - UI copies:
   - `copy.doneFor`: "{label} copiado"
   - `copy.failed`: "No se pudo copiar, selecciona el texto manualmente"
   - `share.failed`: "No se pudo compartir, intenta copiar los datos"
   - `share.qr.caption`: "Muéstralo a quien te va a transferir."
-  - `meta.home.description`: same text as `home.subheading`
+  - `copy.failedShort`: "Error al copiar"
+  - Home description reuses `home.subheading` as the `BaseLayout` default instead of duplicating it in `meta.home.description`.
   - `meta.view.description`: "Te compartieron datos para una transferencia SPEI."
 - Test suites:
   - `tests/unit/spei/application/formatTransferText.test.ts` (modified)
@@ -216,24 +217,25 @@ Announce copy results, handle failures, hide unsupported actions and make links 
     - `shows a message when the clipboard fails`
     - `hides the native share button when it is not supported`
     - `shows the qr caption and a destination based filename`
+  - `tests/e2e/accessibility.spec.ts` (modified): measures "Copiar enlace" instead of the native share button, which is now hidden on browsers without the Web Share API.
   - `tests/e2e/meta.spec.ts`
     - `marks the shared page as noindex`
     - `uses a payer oriented description on the shared page`
 
 ### To-do
 
-- [ ] Add `#announcer` and `announce`, and make `CopyButton.astro` robust and announced.
-- [ ] Add `formatShareText` and use it in "Copiar todo" and `shareTransfer`.
-- [ ] Hide unsupported native share and handle share errors.
-- [ ] Add the QR caption and `qrFileName`.
-- [ ] Add `description`, `noindex`, Open Graph and Twitter tags to `BaseLayout.astro` and use them in both pages.
-- [ ] Add print styles.
-- [ ] Add and update unit and e2e tests.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Add `#announcer` and `announce`, and make `CopyButton.astro` robust and announced.
+- [x] Add `formatShareText` and use it in "Copiar todo" and `shareTransfer`.
+- [x] Hide unsupported native share and handle share errors.
+- [x] Add the QR caption and `qrFileName`.
+- [x] Add `description`, `noindex`, Open Graph and Twitter tags to `BaseLayout.astro` and use them in both pages.
+- [x] Add print styles.
+- [x] Add and update unit and e2e tests.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 # ⏭️ Next step
 
-Implement Phase 4: robust sharing, link previews and print.
+All phases are complete: merge `feature/ui-ux-improvements` into `main`.
 
-Form guided, the turtle now points the payer straight to the CLABE with a big button thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿ 🧭 👉
+Shared, announced and even printed, the turtle's receipts now travel anywhere thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿ 🧭 👉 🖨️

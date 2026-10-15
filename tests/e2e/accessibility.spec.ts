@@ -64,7 +64,7 @@ test("interactive controls are at least 44px tall", async ({ page }) => {
   const controls = [
     page.getByRole("button", { name: "Copiar CLABE" }),
     page.getByRole("button", { name: "Copiar todo" }),
-    page.getByRole("button", { name: "Compartir", exact: true }),
+    page.getByRole("button", { name: "Copiar enlace" }),
     page.locator("#theme-toggle"),
   ];
   for (const control of controls) {

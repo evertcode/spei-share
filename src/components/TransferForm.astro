@@ -150,7 +150,6 @@ const bankNames = [...new Set(listBanks().map((bank) => bank.name))];
   </button>
 </form>
 
-<p id="form-status" role="status" class="sr-only"></p>
 <p
   id="generated-link-stale"
   role="status"
@@ -180,6 +179,7 @@ const bankNames = [...new Set(listBanks().map((bank) => bank.name))];
 </section>
 
 <script>
+  import { announce } from "../dom/announce";
   import { queryRequired } from "../dom/queryRequired";
   import { es } from "../i18n/es";
   import { Clabe } from "../spei/domain/Clabe";
@@ -212,7 +212,6 @@ const bankNames = [...new Set(listBanks().map((bank) => bank.name))];
   const output = queryRequired<HTMLElement>("#generated-link");
   const linkInput = queryRequired<HTMLInputElement>("#generatedLink");
   const copyLinkButton = queryRequired<HTMLButtonElement>("#copy-generated-link");
-  const formStatus = queryRequired("#form-status");
   const staleNotice = queryRequired<HTMLElement>("#generated-link-stale");
   const clabeInput = queryRequired<HTMLInputElement>("#clabe", form);
   const clabeHint = queryRequired("#clabe-hint", form);
@@ -391,7 +390,7 @@ const bankNames = [...new Set(listBanks().map((bank) => bank.name))];
     output.hidden = false;
     publishTransfer({ data: result.data, url });
 
-    formStatus.textContent = es.form.generatedLink.ready;
+    announce(es.form.generatedLink.ready);
     output.scrollIntoView({ block: "start" });
     linkInput.focus({ preventScroll: true });
   });

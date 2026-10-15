@@ -1,6 +1,6 @@
 import { es } from "../../i18n/es";
 import type { SpeiTransferData } from "../domain/SpeiTransferData";
-import { formatTransferText } from "./formatTransferText";
+import { formatShareText, formatTransferText } from "./formatTransferText";
 
 export type ShareResult = "shared" | "copied";
 
@@ -14,13 +14,15 @@ export async function shareTransfer(
   url: URL,
   shareNavigator: ShareCapableNavigator = navigator,
 ): Promise<ShareResult> {
-  const text = formatTransferText(data);
-
   if (shareNavigator.share) {
-    await shareNavigator.share({ title: es.share.text.title, text, url: url.toString() });
+    await shareNavigator.share({
+      title: es.share.text.title,
+      text: formatTransferText(data),
+      url: url.toString(),
+    });
     return "shared";
   }
 
-  await shareNavigator.clipboard.writeText(`${text}\n\n${url.toString()}`);
+  await shareNavigator.clipboard.writeText(formatShareText(data, url));
   return "copied";
 }

@@ -215,6 +215,43 @@ test("shows help for the payer when the link is invalid", async ({ page }) => {
   ).toBeVisible();
 });
 
+test("shows a message when the clipboard fails", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: () => Promise.reject(new Error("Clipboard denied")) },
+    });
+  });
+  await page.goto(await createLink(page));
+
+  const copyButton = page.getByRole("button", { name: "Copiar CLABE" });
+  await copyButton.click();
+
+  await expect(copyButton).toHaveText("Error al copiar");
+  await expect(page.locator("#announcer")).toHaveText(
+    "No se pudo copiar, selecciona el texto manualmente",
+  );
+});
+
+test("hides the native share button when it is not supported", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, "share", { value: undefined, configurable: true });
+  });
+  await page.goto(await createLink(page));
+
+  await expect(page.getByRole("button", { name: "Copiar todo" })).toBeVisible();
+  await expect(page.locator("#native-share")).toBeHidden();
+});
+
+test("shows the qr caption and a destination based filename", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(page.getByText("Muéstralo a quien te va a transferir.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Descargar QR" })).toHaveAttribute(
+    "download",
+    "spei-7899.svg",
+  );
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 

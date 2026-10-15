@@ -27,9 +27,10 @@ const VARIANT_CLASSES: Record<Variant, string> = {
   data-copy-button
   data-copy-value={value}
   data-variant={variant}
+  data-copy-label={label}
   aria-label={text ? undefined : `${es.copy.action} ${label}`}
   class:list={[
-    "inline-flex min-h-11 shrink-0 items-center rounded-sm text-sm font-medium transition-colors duration-200 data-copied:bg-accent data-copied:text-accent-ink",
+    "inline-flex min-h-11 shrink-0 items-center rounded-sm text-sm font-medium transition-colors duration-200 data-copied:bg-accent data-copied:text-accent-ink data-copy-failed:text-danger print:hidden",
     VARIANT_CLASSES[variant],
   ]}
 >
@@ -37,9 +38,31 @@ const VARIANT_CLASSES: Record<Variant, string> = {
 </button>
 
 <script>
+  import { announce } from "../dom/announce";
   import { es } from "../i18n/es";
 
   const FEEDBACK_MS = 2000;
+  const feedbackTimers = new WeakMap<HTMLButtonElement, ReturnType<typeof setTimeout>>();
+
+  function showFeedback(button: HTMLButtonElement, text: string, state: "copied" | "copyFailed") {
+    const idleText = button.dataset.idleText ?? button.textContent;
+    button.dataset.idleText = idleText;
+
+    clearTimeout(feedbackTimers.get(button));
+    delete button.dataset.copied;
+    delete button.dataset.copyFailed;
+
+    button.textContent = text;
+    button.dataset[state] = "";
+    feedbackTimers.set(
+      button,
+      setTimeout(() => {
+        button.textContent = idleText;
+        delete button.dataset.copied;
+        delete button.dataset.copyFailed;
+      }, FEEDBACK_MS),
+    );
+  }
 
   document.addEventListener("click", async (event) => {
     const target = event.target;
@@ -48,15 +71,13 @@ const VARIANT_CLASSES: Record<Variant, string> = {
     const button = target.closest<HTMLButtonElement>("[data-copy-button]");
     if (!button) return;
 
-    const idleText = button.dataset.idleText ?? button.textContent;
-    button.dataset.idleText = idleText;
-
-    await navigator.clipboard.writeText(button.dataset.copyValue ?? "");
-    button.textContent = es.copy.done;
-    button.dataset.copied = "";
-    setTimeout(() => {
-      button.textContent = idleText;
-      delete button.dataset.copied;
-    }, FEEDBACK_MS);
+    try {
+      await navigator.clipboard.writeText(button.dataset.copyValue ?? "");
+      showFeedback(button, es.copy.done, "copied");
+      announce(es.copy.doneFor.replace("{label}", button.dataset.copyLabel ?? ""));
+    } catch {
+      showFeedback(button, es.copy.failedShort, "copyFailed");
+      announce(es.copy.failed);
+    }
   });
 </script>

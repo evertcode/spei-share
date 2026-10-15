@@ -5,6 +5,11 @@ export const es = {
   brand: {
     wordmark: "SPEI · share",
   },
+  meta: {
+    view: {
+      description: "Te compartieron datos para una transferencia SPEI.",
+    },
+  },
   a11y: {
     skipToContent: "Saltar al contenido",
   },
@@ -100,6 +105,9 @@ export const es = {
   copy: {
     action: "Copiar",
     done: "¡Copiado!",
+    doneFor: "{label} copiado",
+    failed: "No se pudo copiar, selecciona el texto manualmente",
+    failedShort: "Error al copiar",
   },
   share: {
     heading: "Compartir",
@@ -109,8 +117,10 @@ export const es = {
     qr: {
       alt: "Código QR con el enlace a tus datos SPEI",
       download: "Descargar QR",
+      caption: "Muéstralo a quien te va a transferir.",
     },
     text: { title: "Datos para transferencia SPEI" },
     copiedFallback: "Tu dispositivo no permite compartir, copiamos los datos al portapapeles",
+    failed: "No se pudo compartir, intenta copiar los datos",
   },
 } as const;
