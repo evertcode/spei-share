@@ -43,8 +43,18 @@ const pageTitle = title ? `${title} | ${es.app.title}` : es.app.title;
     <title>{pageTitle}</title>
   </head>
   <body class="flex min-h-dvh flex-col antialiased">
+    <a
+      href="#main"
+      class="sr-only rounded-sm bg-ink px-4 py-3 font-medium text-paper focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-50"
+    >
+      {es.a11y.skipToContent}
+    </a>
     <SiteHeader />
-    <main class="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10 sm:pt-16">
+    <main
+      id="main"
+      tabindex="-1"
+      class="mx-auto w-full max-w-2xl flex-1 px-5 pt-12 pb-10 focus:outline-none sm:pt-16"
+    >
       <slot />
     </main>
     <SiteFooter />

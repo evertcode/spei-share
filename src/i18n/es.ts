@@ -5,6 +5,9 @@ export const es = {
   brand: {
     wordmark: "SPEI · share",
   },
+  a11y: {
+    skipToContent: "Saltar al contenido",
+  },
   theme: {
     toDark: "Cambiar a tema oscuro",
     toLight: "Cambiar a tema claro",

@@ -9,6 +9,16 @@ created_by:
     name: "Claude Opus"
     version: "5.5"
     reasoning_effort: "low"
+
+implemented_by:
+  tool: "Claude Code"
+  model:
+    name: "Claude Opus"
+    version: "5.5"
+    reasoning_effort: "low"
+
+last_implementation_at: "2026-10-15T00:20:03Z"
+has_completed_all_phases: "false"
 ---
 
 # 🎯 Goal
@@ -35,14 +45,15 @@ Fix contrast, forced colors, focus, touch targets and zoom so every later phase 
 ### Public contracts
 
 - Styles (`src/styles/global.css`):
-  - `@media (forced-colors: active)` block: visible outline on focused inputs (`CanvasText`), non-color indicator on the checked segment (underline + bold), `border` on filled buttons.
+  - `@media (forced-colors: active)` block: visible `CanvasText` outline on focused inputs. The checked segment indicator (underline + bold) uses `forced-colors:has-checked:` variants in `TransferForm.astro`, and filled buttons (submit, native share) get `border border-transparent` so forced colors draws their boundary.
 - Components:
   - `TextField.astro`: placeholder uses `text-ink-muted`; default underline uses `border-ink-muted`; CLABE hint no longer `aria-live` (still linked through `aria-describedby`).
   - `TransferForm.astro`: segmented control borders and dividers use `ink-muted`; segment labels `min-h-11`; `#generatedLink` keeps a visible focus indicator; `#draft-notice` gets `role="status"`; `#clear-draft` gets padding for a 44px target.
   - `CopyButton.astro`, `ThemeToggle.astro`, `#native-share`: minimum 44px touch targets (`min-h-11`, toggle `size-11`).
   - `ShareActions.astro`, `TransferCard.astro`: link underlines use `decoration-accent`.
   - `TransferCard.astro`: destination value drops `whitespace-nowrap` and only wraps between digit groups.
-  - `BaseLayout.astro`: visually hidden skip link as first focusable element, `<main id="main">`.
+  - `BaseLayout.astro`: visually hidden skip link as first focusable element, `<main id="main" tabindex="-1">` so the skip link moves focus into it.
+  - `TextField.astro` hover underline darkens to `ink`.
 - UI copies:
   - `a11y.skipToContent`: "Saltar al contenido"
 - Test suites:
@@ -54,14 +65,14 @@ Fix contrast, forced colors, focus, touch targets and zoom so every later phase 
 
 ### To-do
 
-- [ ] Fix placeholder, underline, segmented control and link underline contrast with existing tokens.
-- [ ] Add the forced-colors block and restore the focus indicator on `#generatedLink`.
-- [ ] Raise touch targets to 44px on copy buttons, theme toggle, native share, segments and clear draft.
-- [ ] Let the destination value wrap between groups at high zoom.
-- [ ] Add the skip link, `id="main"`, `role="status"` on the draft notice and remove `aria-live` from the CLABE hint.
-- [ ] Add the `a11y.skipToContent` copy and `tests/e2e/accessibility.spec.ts`.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Fix placeholder, underline, segmented control and link underline contrast with existing tokens.
+- [x] Add the forced-colors block and restore the focus indicator on `#generatedLink`.
+- [x] Raise touch targets to 44px on copy buttons, theme toggle, native share, segments and clear draft.
+- [x] Let the destination value wrap between groups at high zoom.
+- [x] Add the skip link, `id="main"`, `role="status"` on the draft notice and remove `aria-live` from the CLABE hint.
+- [x] Add the `a11y.skipToContent` copy and `tests/e2e/accessibility.spec.ts`.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 2: Guided creation form
 
@@ -218,6 +229,6 @@ Announce copy results, handle failures, hide unsupported actions and make links 
 
 # ⏭️ Next step
 
-Implement Phase 1: accessibility baseline.
+Implement Phase 2: guided creation form.
 
-Audited, sorted and ready to polish by 🐢 💨 (Turbotuga™, [Codely](https://codely.com)'s mascot) 🔍
+Every door now has a ramp and a clear sign, the turtle checked them one by one thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿

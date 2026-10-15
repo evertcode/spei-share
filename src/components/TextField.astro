@@ -48,10 +48,10 @@ const describedBy = [hint ? `${id}-hint` : undefined, `${id}-error`].filter(Bool
     required={required}
     aria-describedby={describedBy}
     class:list={[
-      "mt-1.5 w-full rounded-none border-0 border-b border-rule bg-transparent px-0 py-2 text-lg text-ink transition-[border-color,box-shadow] placeholder:text-ink-muted/45 hover:border-ink-muted focus:border-accent focus:shadow-[inset_0_-1px_0_var(--accent)] focus:outline-none aria-invalid:border-danger aria-invalid:shadow-[inset_0_-1px_0_var(--danger)]",
+      "mt-1.5 w-full rounded-none border-0 border-b border-ink-muted bg-transparent px-0 py-2 text-lg text-ink transition-[border-color,box-shadow] placeholder:text-ink-muted hover:border-ink focus:border-accent focus:shadow-[inset_0_-1px_0_var(--accent)] focus:outline-none aria-invalid:border-danger aria-invalid:shadow-[inset_0_-1px_0_var(--danger)]",
       { "font-mono text-base tracking-wide": mono },
     ]}
   />
-  {hint && <p id={`${id}-hint`} class="mt-2 text-sm text-accent empty:hidden" aria-live="polite" />}
+  {hint && <p id={`${id}-hint`} class="mt-2 text-sm text-accent empty:hidden" />}
   <p id={`${id}-error`} class="mt-2 text-sm text-danger empty:hidden" aria-live="polite"></p>
 </div>

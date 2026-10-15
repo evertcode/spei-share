@@ -15,6 +15,7 @@ const destinationOptions: DestinationOption[] = [
 
 <div
   id="draft-notice"
+  role="status"
   hidden
   class="mb-10 flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3 text-sm"
 >
@@ -25,7 +26,7 @@ const destinationOptions: DestinationOption[] = [
   <button
     id="clear-draft"
     type="button"
-    class="font-medium text-ink underline decoration-rule underline-offset-4 transition-colors hover:decoration-ink"
+    class="inline-flex min-h-11 items-center px-1 font-medium text-ink underline decoration-ink-muted underline-offset-4 transition-colors hover:decoration-ink"
   >
     {es.form.draft.clear}
   </button>
@@ -36,9 +37,9 @@ const destinationOptions: DestinationOption[] = [
 
   <fieldset>
     <legend class="eyebrow mb-3 text-ink-muted">{es.form.destinationType.label}</legend>
-    <div class="grid grid-cols-3 divide-x divide-ink/15 border border-ink/15">
+    <div class="grid grid-cols-3 divide-x divide-ink-muted border border-ink-muted">
       {destinationOptions.map(({ type, label }) => (
-        <label class="relative flex cursor-pointer items-center justify-center px-2 py-3 text-center text-sm leading-tight text-ink-muted transition-colors select-none hover:bg-ink/4 hover:text-ink has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent">
+        <label class="relative flex min-h-11 cursor-pointer items-center justify-center px-2 py-2.5 text-center text-sm leading-tight text-ink-muted transition-colors select-none hover:bg-ink/4 hover:text-ink has-checked:bg-ink has-checked:text-paper forced-colors:has-checked:font-bold forced-colors:has-checked:underline has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent">
           <input
             type="radio"
             name="destinationType"
@@ -104,7 +105,7 @@ const destinationOptions: DestinationOption[] = [
 
   <button
     type="submit"
-    class="group flex w-full items-center justify-between rounded-sm bg-ink px-5 py-4 text-base font-medium text-paper transition-colors hover:bg-accent"
+    class="group flex w-full items-center justify-between rounded-sm border border-transparent bg-ink px-5 py-4 text-base font-medium text-paper transition-colors hover:bg-accent"
   >
     {es.form.submit}
     <span
@@ -129,7 +130,7 @@ const destinationOptions: DestinationOption[] = [
       id="generatedLink"
       type="url"
       readonly
-      class="min-w-0 flex-1 truncate border-0 bg-transparent p-0 font-mono text-sm text-ink focus:outline-none"
+      class="min-w-0 flex-1 truncate border-0 bg-transparent p-0 font-mono text-sm text-ink"
     />
     <CopyButton id="copy-generated-link" label={es.form.generatedLink.label} />
   </div>

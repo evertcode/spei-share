@@ -22,7 +22,7 @@ const { showCopyLink = true } = Astro.props;
     <button
       id="native-share"
       type="button"
-      class="group ml-auto inline-flex items-center gap-2 rounded-sm bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent"
+      class="group ml-auto inline-flex min-h-11 items-center gap-2 rounded-sm border border-transparent bg-ink px-4 text-sm font-medium text-paper transition-colors hover:bg-accent"
     >
       {es.share.native}
       <svg
@@ -45,7 +45,7 @@ const { showCopyLink = true } = Astro.props;
       <a
         id="share-qr-download"
         download="spei-qr.svg"
-        class="text-sm font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+        class="text-sm font-medium text-accent underline decoration-accent underline-offset-4 transition-colors hover:decoration-accent"
       >
         {es.share.qr.download}
       </a>

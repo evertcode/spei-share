@@ -17,7 +17,7 @@ const { label, text, value = "", id } = Astro.props;
   data-copy-button
   data-copy-value={value}
   aria-label={text ? undefined : `${es.copy.action} ${label}`}
-  class="shrink-0 rounded-sm px-2 py-1 text-sm font-medium text-accent underline-offset-4 transition-colors duration-200 hover:bg-accent/10 hover:underline data-copied:bg-accent data-copied:text-accent-ink data-copied:no-underline"
+  class="inline-flex min-h-11 shrink-0 items-center rounded-sm px-3 text-sm font-medium text-accent underline-offset-4 transition-colors duration-200 hover:bg-accent/10 hover:underline data-copied:bg-accent data-copied:text-accent-ink data-copied:no-underline"
 >
   {text ?? es.copy.action}
 </button>

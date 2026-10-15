@@ -24,7 +24,7 @@ const rows: Row[] = [
 const VALUE_CLASSES: Record<RowStyle, string> = {
   text: "text-lg text-ink [overflow-wrap:anywhere]",
   figure: "font-mono text-base tracking-wide text-ink [overflow-wrap:anywhere]",
-  headline: "font-mono text-lg tracking-wide whitespace-nowrap text-ink sm:text-2xl",
+  headline: "font-mono text-lg tracking-wide text-ink sm:text-2xl",
 };
 ---
 
@@ -56,7 +56,7 @@ const VALUE_CLASSES: Record<RowStyle, string> = {
   <p class="font-display text-2xl leading-snug text-ink">{es.view.invalidLink}</p>
   <a
     href="/"
-    class="mt-4 inline-block font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+    class="mt-4 inline-block font-medium text-accent underline decoration-accent underline-offset-4 transition-colors hover:decoration-accent"
   >
     {es.view.createOwn}
   </a>
