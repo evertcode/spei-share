@@ -9,7 +9,12 @@ interface Props {
 const { showCopyLink = true } = Astro.props;
 ---
 
-<section id="share-actions" hidden aria-labelledby="share-heading" class="mt-14 animate-fade-up">
+<section
+  id="share-actions"
+  hidden
+  aria-labelledby="share-heading"
+  class="mt-14 animate-fade-up print:hidden"
+>
   <h2 id="share-heading" class="eyebrow text-ink-muted">
     {es.share.heading}
   </h2>
@@ -22,7 +27,7 @@ const { showCopyLink = true } = Astro.props;
     <button
       id="native-share"
       type="button"
-      class="group ml-auto inline-flex items-center gap-2 rounded-sm bg-ink px-4 py-2 text-sm font-medium text-paper transition-colors hover:bg-accent"
+      class="group ml-auto inline-flex min-h-11 items-center gap-2 rounded-sm border border-transparent bg-ink px-4 text-sm font-medium text-paper transition-colors hover:bg-accent"
     >
       {es.share.native}
       <svg
@@ -42,10 +47,11 @@ const { showCopyLink = true } = Astro.props;
   <figure class="receipt-shadow mx-auto mt-10 w-full max-w-64">
     <div class="receipt-edges flex flex-col items-center gap-4 bg-paper-raised px-6 pt-8 pb-9 text-center">
       <div id="share-qr" role="img" aria-label={es.share.qr.alt} class="w-full max-w-44"></div>
+      <figcaption class="text-sm text-ink-muted">{es.share.qr.caption}</figcaption>
       <a
         id="share-qr-download"
-        download="spei-qr.svg"
-        class="text-sm font-medium text-accent underline decoration-accent/40 underline-offset-4 transition-colors hover:decoration-accent"
+        download="spei.svg"
+        class="text-sm font-medium text-accent underline decoration-accent underline-offset-4 transition-colors hover:decoration-accent"
       >
         {es.share.qr.download}
       </a>
@@ -56,8 +62,10 @@ const { showCopyLink = true } = Astro.props;
 <script>
   import { queryRequired } from "../dom/queryRequired";
   import { es } from "../i18n/es";
-  import { formatTransferText } from "../spei/application/formatTransferText";
+  import { announce } from "../dom/announce";
+  import { formatShareText } from "../spei/application/formatTransferText";
   import { generateQrSvg } from "../spei/application/generateQrSvg";
+  import { qrFileName } from "../spei/application/qrFileName";
   import { shareTransfer } from "../spei/application/shareTransfer";
   import { subscribeToTransfer, type SharedTransfer } from "../spei/application/transferChannel";
 
@@ -88,8 +96,9 @@ const { showCopyLink = true } = Astro.props;
     if (!transfer) return;
 
     const link = transfer.url.toString();
-    copyAllButton.dataset.copyValue = `${formatTransferText(transfer.data)}\n\n${link}`;
+    copyAllButton.dataset.copyValue = formatShareText(transfer.data, transfer.url);
     if (copyLinkButton) copyLinkButton.dataset.copyValue = link;
+    qrDownload.download = qrFileName(transfer.data.destination);
     await renderQr(transfer.url);
   }
 
@@ -101,9 +110,13 @@ const { showCopyLink = true } = Astro.props;
       status.textContent = result === "copied" ? es.share.copiedFallback : "";
     } catch (error) {
       if (error instanceof DOMException && error.name === "AbortError") return;
-      throw error;
+      status.textContent = es.share.failed;
     }
+    if (status.textContent) announce(status.textContent);
   });
+
+  // Desktop browsers without the Web Share API get "Copiar todo" instead of a fake share button.
+  nativeShareButton.hidden = typeof navigator.share !== "function";
 
   subscribeToTransfer((transfer) => void show(transfer));
 </script>

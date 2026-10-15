@@ -5,6 +5,14 @@ export const es = {
   brand: {
     wordmark: "SPEI · share",
   },
+  meta: {
+    view: {
+      description: "Te compartieron datos para una transferencia SPEI.",
+    },
+  },
+  a11y: {
+    skipToContent: "Saltar al contenido",
+  },
   theme: {
     toDark: "Cambiar a tema oscuro",
     toLight: "Cambiar a tema claro",
@@ -42,10 +50,14 @@ export const es = {
     rfc: { label: "RFC" },
     email: { label: "Correo electrónico" },
     submit: "Generar enlace",
-    generatedLink: { label: "Tu enlace para compartir" },
+    generatedLink: {
+      label: "Tu enlace para compartir",
+      ready: "Enlace generado",
+      stale: "Cambiaste datos, vuelve a generar el enlace",
+    },
     draft: {
       restored: "Recuperamos tus últimos datos",
-      clear: "Borrar datos guardados",
+      clear: "Empezar de nuevo",
     },
   },
   errors: {
@@ -75,6 +87,10 @@ export const es = {
       verify: "Verifica el nombre del beneficiario antes de enviar.",
     },
     invalidLink: "Este enlace no es válido o está incompleto.",
+    invalidLinkHelp: "Pide a quien te lo envió que comparta el enlace completo de nuevo.",
+    instructions: "Copia los datos y transfiere desde la app de tu banco.",
+    createOwnPrompt: "¿También recibes transferencias?",
+    noscript: "Activa JavaScript para ver los datos de este enlace.",
     createOwn: "Crear mi propio enlace",
     beneficiaryName: { label: "Beneficiario" },
     clabe: { label: "CLABE" },
@@ -89,6 +105,9 @@ export const es = {
   copy: {
     action: "Copiar",
     done: "¡Copiado!",
+    doneFor: "{label} copiado",
+    failed: "No se pudo copiar, selecciona el texto manualmente",
+    failedShort: "Error al copiar",
   },
   share: {
     heading: "Compartir",
@@ -98,8 +117,10 @@ export const es = {
     qr: {
       alt: "Código QR con el enlace a tus datos SPEI",
       download: "Descargar QR",
+      caption: "Muéstralo a quien te va a transferir.",
     },
     text: { title: "Datos para transferencia SPEI" },
     copiedFallback: "Tu dispositivo no permite compartir, copiamos los datos al portapapeles",
+    failed: "No se pudo compartir, intenta copiar los datos",
   },
 } as const;

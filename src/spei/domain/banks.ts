@@ -68,6 +68,10 @@ const BANKS: readonly Bank[] = [
 
 const BANKS_BY_CODE = new Map(BANKS.map((bank) => [bank.code, bank]));
 
+export function listBanks(): readonly Bank[] {
+  return BANKS;
+}
+
 export function findBankByCode(code: string): Bank | undefined {
   return BANKS_BY_CODE.get(code);
 }

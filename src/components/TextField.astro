@@ -9,6 +9,13 @@ interface Props {
   placeholder?: string;
   inputmode?: HTMLAttributes<"input">["inputmode"];
   autocomplete?: HTMLAttributes<"input">["autocomplete"];
+  autocapitalize?: HTMLAttributes<"input">["autocapitalize"];
+  enterkeyhint?: HTMLAttributes<"input">["enterkeyhint"];
+  spellcheck?: boolean;
+  maxlength?: number;
+  counter?: boolean;
+  list?: string;
+  uppercase?: boolean;
   mono?: boolean;
   hint?: boolean;
   showFor?: string;
@@ -23,12 +30,26 @@ const {
   placeholder,
   inputmode,
   autocomplete = "off",
+  autocapitalize,
+  enterkeyhint = "next",
+  spellcheck,
+  maxlength,
+  counter = false,
+  list,
+  uppercase = false,
   mono = false,
   hint = false,
   showFor,
   hidden = false,
 } = Astro.props;
-const describedBy = [hint ? `${id}-hint` : undefined, `${id}-error`].filter(Boolean).join(" ");
+const showCounter = counter && maxlength !== undefined;
+const describedBy = [
+  hint ? `${id}-hint` : undefined,
+  showCounter ? `${id}-counter` : undefined,
+  `${id}-error`,
+]
+  .filter(Boolean)
+  .join(" ");
 ---
 
 <div class="group/field" data-show-for={showFor} hidden={hidden}>
@@ -44,14 +65,29 @@ const describedBy = [hint ? `${id}-hint` : undefined, `${id}-error`].filter(Bool
     type={type}
     inputmode={inputmode}
     autocomplete={autocomplete}
+    autocapitalize={autocapitalize}
+    enterkeyhint={enterkeyhint}
+    spellcheck={spellcheck}
+    maxlength={maxlength}
+    list={list}
     placeholder={placeholder}
     required={required}
     aria-describedby={describedBy}
     class:list={[
-      "mt-1.5 w-full rounded-none border-0 border-b border-rule bg-transparent px-0 py-2 text-lg text-ink transition-[border-color,box-shadow] placeholder:text-ink-muted/45 hover:border-ink-muted focus:border-accent focus:shadow-[inset_0_-1px_0_var(--accent)] focus:outline-none aria-invalid:border-danger aria-invalid:shadow-[inset_0_-1px_0_var(--danger)]",
-      { "font-mono text-base tracking-wide": mono },
+      "mt-1.5 w-full rounded-none border-0 border-b border-ink-muted bg-transparent px-0 py-2 text-lg text-ink transition-[border-color,box-shadow] placeholder:text-ink-muted hover:border-ink focus:border-accent focus:shadow-[inset_0_-1px_0_var(--accent)] focus:outline-none aria-invalid:border-danger aria-invalid:shadow-[inset_0_-1px_0_var(--danger)]",
+      { "font-mono text-base tracking-wide": mono, uppercase },
     ]}
   />
-  {hint && <p id={`${id}-hint`} class="mt-2 text-sm text-accent empty:hidden" aria-live="polite" />}
+  {hint && <p id={`${id}-hint`} class="mt-2 text-sm text-accent empty:hidden" />}
+  {showCounter && (
+    <p
+      id={`${id}-counter`}
+      data-counter-for={id}
+      data-max={maxlength}
+      class="mt-2 text-right font-mono text-xs text-ink-muted"
+    >
+      0/{maxlength}
+    </p>
+  )}
   <p id={`${id}-error`} class="mt-2 text-sm text-danger empty:hidden" aria-live="polite"></p>
 </div>

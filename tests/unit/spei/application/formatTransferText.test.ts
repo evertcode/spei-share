@@ -1,5 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { formatTransferText } from "../../../../src/spei/application/formatTransferText";
+import {
+  formatShareText,
+  formatTransferText,
+} from "../../../../src/spei/application/formatTransferText";
 
 describe("formatTransferText", () => {
   it("formats all filled fields in order", () => {
@@ -52,5 +55,18 @@ describe("formatTransferText", () => {
     });
 
     expect(text).toContain("Tarjeta: 4111 1111 1111 1111");
+  });
+
+  it("appends the link after the transfer text", () => {
+    const data = {
+      beneficiaryName: "Ada Lovelace",
+      destination: { type: "account" as const, value: "1234567890" },
+      bankName: "Banorte",
+    };
+    const url = new URL("https://spei.example/ver#d=abc");
+
+    expect(formatShareText(data, url)).toBe(
+      `${formatTransferText(data)}\n\nhttps://spei.example/ver#d=abc`,
+    );
   });
 });

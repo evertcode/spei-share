@@ -67,7 +67,7 @@ test("creates a link with a debit card destination", async ({ page }) => {
   await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
   await page.getByRole("radio", { name: "Tarjeta de débito" }).check();
   await page.getByRole("textbox", { name: "Número de tarjeta" }).fill("4111 1111 1111 1111");
-  await page.getByRole("textbox", { name: "Banco", exact: true }).fill("Nu México");
+  await page.getByLabel("Banco", { exact: true }).fill("Nu México");
   await page.getByRole("button", { name: "Generar enlace" }).click();
 
   await page.goto(await page.getByLabel("Tu enlace para compartir", { exact: true }).inputValue());
@@ -82,7 +82,7 @@ test("shows an error for an invalid card number", async ({ page }) => {
   await page.getByLabel("Nombre del beneficiario").fill(BENEFICIARY);
   await page.getByRole("radio", { name: "Tarjeta de débito" }).check();
   await page.getByRole("textbox", { name: "Número de tarjeta" }).fill("4111111111111112");
-  await page.getByRole("textbox", { name: "Banco", exact: true }).fill("Nu México");
+  await page.getByLabel("Banco", { exact: true }).fill("Nu México");
   await page.getByRole("button", { name: "Generar enlace" }).click();
 
   await expect(page.getByText("El número de tarjeta no es válido")).toBeVisible();
@@ -149,6 +149,107 @@ test("does not animate when reduced motion is requested", async ({ page }) => {
     .evaluate((element) => getComputedStyle(element).animationName);
 
   expect(animationName).toBe("none");
+});
+
+test("validates a field when leaving it", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByLabel("CLABE interbancaria").fill("12345");
+  await page.getByLabel("CLABE interbancaria").press("Tab");
+
+  await expect(page.getByText("La CLABE debe tener 18 dígitos")).toBeVisible();
+
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+  await expect(page.getByText("La CLABE debe tener 18 dígitos")).toBeHidden();
+});
+
+test("focuses the first invalid field on submit", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByRole("button", { name: "Generar enlace" }).click();
+
+  await expect(page.getByLabel("Nombre del beneficiario")).toBeFocused();
+});
+
+test("hides the generated link when the form changes", async ({ page }) => {
+  await createLink(page);
+
+  await page.getByLabel("Concepto").fill("Renta");
+
+  await expect(page.getByLabel("Tu enlace para compartir", { exact: true })).toBeHidden();
+  await expect(page.getByText("Cambiaste datos, vuelve a generar el enlace")).toBeVisible();
+});
+
+test("formats the clabe when leaving the field", async ({ page }) => {
+  await page.goto("/");
+
+  await page.getByLabel("CLABE interbancaria").fill(CLABE);
+  await page.getByLabel("CLABE interbancaria").press("Tab");
+
+  await expect(page.getByLabel("CLABE interbancaria")).toHaveValue("012 180 00123456789 9");
+});
+
+test("shows the destination as the first row with a primary copy button", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(page.locator("[data-row]").first()).toHaveAttribute("data-row", "destination");
+  await expect(page.getByRole("button", { name: "Copiar CLABE" })).toHaveAttribute(
+    "data-variant",
+    "primary",
+  );
+});
+
+test("shows instructions for the payer", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(
+    page.getByText("Copia los datos y transfiere desde la app de tu banco."),
+  ).toBeVisible();
+});
+
+test("shows help for the payer when the link is invalid", async ({ page }) => {
+  await page.goto("/ver#d=corrupted");
+
+  await expect(
+    page.getByText("Pide a quien te lo envió que comparta el enlace completo de nuevo."),
+  ).toBeVisible();
+});
+
+test("shows a message when the clipboard fails", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", {
+      value: { writeText: () => Promise.reject(new Error("Clipboard denied")) },
+    });
+  });
+  await page.goto(await createLink(page));
+
+  const copyButton = page.getByRole("button", { name: "Copiar CLABE" });
+  await copyButton.click();
+
+  await expect(copyButton).toHaveText("Error al copiar");
+  await expect(page.locator("#announcer")).toHaveText(
+    "No se pudo copiar, selecciona el texto manualmente",
+  );
+});
+
+test("hides the native share button when it is not supported", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Navigator.prototype, "share", { value: undefined, configurable: true });
+  });
+  await page.goto(await createLink(page));
+
+  await expect(page.getByRole("button", { name: "Copiar todo" })).toBeVisible();
+  await expect(page.locator("#native-share")).toBeHidden();
+});
+
+test("shows the qr caption and a destination based filename", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(page.getByText("Muéstralo a quien te va a transferir.")).toBeVisible();
+  await expect(page.getByRole("link", { name: "Descargar QR" })).toHaveAttribute(
+    "download",
+    "spei-7899.svg",
+  );
 });
 
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {

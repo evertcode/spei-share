@@ -1,18 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
-  clearDraft,
+  clearFormDraft,
   DRAFT_STORAGE_KEY,
-  loadDraft,
-  saveDraft,
+  loadFormDraft,
+  saveFormDraft,
 } from "../../../../src/spei/application/draftStorage";
-import type { SpeiTransferData } from "../../../../src/spei/domain/SpeiTransferData";
+import {
+  emptyTransferFormValues,
+  type TransferFormValues,
+} from "../../../../src/spei/application/validateTransferForm";
 
-const DATA: SpeiTransferData = {
+const VALUES: TransferFormValues = {
+  ...emptyTransferFormValues(),
+  destinationType: "card",
   beneficiaryName: "José Peña Muñoz",
-  bankName: "BBVA México",
-  destination: { type: "clabe", value: "012180001234567899" },
+  card: "4111 1111",
   concept: "Renta octubre",
-  amount: "1500.00",
 };
 
 class InMemoryStorage implements Pick<Storage, "getItem" | "setItem" | "removeItem"> {
@@ -46,49 +49,46 @@ class ThrowingStorage implements Pick<Storage, "getItem" | "setItem" | "removeIt
 }
 
 describe("draftStorage", () => {
-  it("saves and loads the same transfer data", () => {
+  it("saves and loads raw form values", () => {
     const storage = new InMemoryStorage();
 
-    saveDraft(DATA, storage);
+    saveFormDraft(VALUES, storage);
 
-    expect(loadDraft(storage)).toEqual(DATA);
+    expect(loadFormDraft(storage)).toEqual(VALUES);
   });
 
   it("returns null when there is no draft", () => {
-    expect(loadDraft(new InMemoryStorage())).toBeNull();
+    expect(loadFormDraft(new InMemoryStorage())).toBeNull();
   });
 
   it("returns null when the draft is corrupted", () => {
     const storage = new InMemoryStorage();
     storage.setItem(DRAFT_STORAGE_KEY, "{not json");
 
-    expect(loadDraft(storage)).toBeNull();
+    expect(loadFormDraft(storage)).toBeNull();
   });
 
-  it("returns null when the draft contains invalid data", () => {
+  it("returns null when the draft has an unknown destination type", () => {
     const storage = new InMemoryStorage();
-    storage.setItem(
-      DRAFT_STORAGE_KEY,
-      JSON.stringify({ ...DATA, destination: { type: "clabe", value: "123" } }),
-    );
+    storage.setItem(DRAFT_STORAGE_KEY, JSON.stringify({ ...VALUES, destinationType: "paypal" }));
 
-    expect(loadDraft(storage)).toBeNull();
+    expect(loadFormDraft(storage)).toBeNull();
   });
 
   it("returns null when storage throws", () => {
     const storage = new ThrowingStorage();
 
-    expect(() => saveDraft(DATA, storage)).not.toThrow();
-    expect(loadDraft(storage)).toBeNull();
-    expect(() => clearDraft(storage)).not.toThrow();
+    expect(() => saveFormDraft(VALUES, storage)).not.toThrow();
+    expect(loadFormDraft(storage)).toBeNull();
+    expect(() => clearFormDraft(storage)).not.toThrow();
   });
 
   it("clears the draft", () => {
     const storage = new InMemoryStorage();
-    saveDraft(DATA, storage);
+    saveFormDraft(VALUES, storage);
 
-    clearDraft(storage);
+    clearFormDraft(storage);
 
-    expect(loadDraft(storage)).toBeNull();
+    expect(loadFormDraft(storage)).toBeNull();
   });
 });

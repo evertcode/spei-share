@@ -1,5 +1,6 @@
 ---
 import { es } from "../i18n/es";
+import { listBanks } from "../spei/domain/banks";
 import type { DestinationType } from "../spei/domain/SpeiTransferData";
 import CopyButton from "./CopyButton.astro";
 import TextField from "./TextField.astro";
@@ -11,10 +12,12 @@ const destinationOptions: DestinationOption[] = [
   { type: "card", label: es.form.destinationType.card },
   { type: "account", label: es.form.destinationType.account },
 ];
+const bankNames = [...new Set(listBanks().map((bank) => bank.name))];
 ---
 
 <div
   id="draft-notice"
+  role="status"
   hidden
   class="mb-10 flex flex-wrap items-center justify-between gap-3 border-y border-rule py-3 text-sm"
 >
@@ -25,20 +28,25 @@ const destinationOptions: DestinationOption[] = [
   <button
     id="clear-draft"
     type="button"
-    class="font-medium text-ink underline decoration-rule underline-offset-4 transition-colors hover:decoration-ink"
+    class="inline-flex min-h-11 items-center px-1 font-medium text-ink underline decoration-ink-muted underline-offset-4 transition-colors hover:decoration-ink"
   >
     {es.form.draft.clear}
   </button>
 </div>
 
 <form id="transfer-form" novalidate class="space-y-9">
-  <TextField id="beneficiaryName" label={es.form.beneficiaryName.label} autocomplete="name" />
+  <TextField
+    id="beneficiaryName"
+    label={es.form.beneficiaryName.label}
+    autocomplete="name"
+    autocapitalize="words"
+  />
 
   <fieldset>
     <legend class="eyebrow mb-3 text-ink-muted">{es.form.destinationType.label}</legend>
-    <div class="grid grid-cols-3 divide-x divide-ink/15 border border-ink/15">
+    <div class="grid grid-cols-3 divide-x divide-ink-muted border border-ink-muted">
       {destinationOptions.map(({ type, label }) => (
-        <label class="relative flex cursor-pointer items-center justify-center px-2 py-3 text-center text-sm leading-tight text-ink-muted transition-colors select-none hover:bg-ink/4 hover:text-ink has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent">
+        <label class="relative flex min-h-11 cursor-pointer items-center justify-center px-2 py-2.5 text-center text-sm leading-tight text-ink-muted transition-colors select-none hover:bg-ink/4 hover:text-ink has-checked:bg-ink has-checked:text-paper has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent forced-colors:has-checked:font-bold forced-colors:has-checked:underline">
           <input
             type="radio"
             name="destinationType"
@@ -57,6 +65,7 @@ const destinationOptions: DestinationOption[] = [
     label={es.form.clabe.label}
     placeholder={es.form.clabe.placeholder}
     inputmode="numeric"
+    maxlength={22}
     mono
     hint
     showFor="clabe"
@@ -67,6 +76,7 @@ const destinationOptions: DestinationOption[] = [
     placeholder={es.form.card.placeholder}
     inputmode="numeric"
     autocomplete="cc-number"
+    maxlength={19}
     mono
     showFor="card"
     hidden
@@ -76,15 +86,27 @@ const destinationOptions: DestinationOption[] = [
     label={es.form.account.label}
     placeholder={es.form.account.placeholder}
     inputmode="numeric"
+    maxlength={11}
     mono
     showFor="account"
     hidden
   />
-  <TextField id="bankName" label={es.form.bankName.label} showFor="card account" hidden />
+  <TextField
+    id="bankName"
+    label={es.form.bankName.label}
+    list="bank-options"
+    showFor="card account"
+    hidden
+  />
+  <datalist id="bank-options">
+    {bankNames.map((name) => (
+      <option value={name} />
+    ))}
+  </datalist>
 
   <fieldset class="space-y-9 border-0 border-t border-rule pt-1">
     <legend class="pr-4 font-display text-xl text-ink italic">{es.form.optional.heading}</legend>
-    <TextField id="concept" label={es.form.concept.label} required={false} />
+    <TextField id="concept" label={es.form.concept.label} maxlength={40} counter required={false} />
     <TextField
       id="amount"
       label={es.form.amount.label}
@@ -92,19 +114,31 @@ const destinationOptions: DestinationOption[] = [
       placeholder="0.00"
       required={false}
     />
-    <TextField id="rfc" label={es.form.rfc.label} mono required={false} />
+    <TextField
+      id="rfc"
+      label={es.form.rfc.label}
+      autocapitalize="characters"
+      spellcheck={false}
+      maxlength={13}
+      uppercase
+      mono
+      required={false}
+    />
     <TextField
       id="email"
       label={es.form.email.label}
       type="email"
       autocomplete="email"
+      autocapitalize="none"
+      spellcheck={false}
+      enterkeyhint="done"
       required={false}
     />
   </fieldset>
 
   <button
     type="submit"
-    class="group flex w-full items-center justify-between rounded-sm bg-ink px-5 py-4 text-base font-medium text-paper transition-colors hover:bg-accent"
+    class="group flex w-full items-center justify-between rounded-sm border border-transparent bg-ink px-5 py-4 text-base font-medium text-paper transition-colors hover:bg-accent"
   >
     {es.form.submit}
     <span
@@ -116,10 +150,19 @@ const destinationOptions: DestinationOption[] = [
   </button>
 </form>
 
+<p
+  id="generated-link-stale"
+  role="status"
+  hidden
+  class="mt-6 border-l-2 border-accent py-1 pl-4 text-sm text-ink-muted"
+>
+  {es.form.generatedLink.stale}
+</p>
+
 <section
   id="generated-link"
   hidden
-  class="mt-10 animate-fade-up border border-dashed border-ink/25 bg-paper-raised px-5 py-4"
+  class="mt-10 animate-fade-up scroll-mt-6 border border-dashed border-ink/25 bg-paper-raised px-5 py-4"
 >
   <label for="generatedLink" class="eyebrow block text-accent">
     {es.form.generatedLink.label}
@@ -129,236 +172,213 @@ const destinationOptions: DestinationOption[] = [
       id="generatedLink"
       type="url"
       readonly
-      class="min-w-0 flex-1 truncate border-0 bg-transparent p-0 font-mono text-sm text-ink focus:outline-none"
+      class="min-w-0 flex-1 truncate border-0 bg-transparent p-0 font-mono text-sm text-ink"
     />
     <CopyButton id="copy-generated-link" label={es.form.generatedLink.label} />
   </div>
 </section>
 
 <script>
+  import { announce } from "../dom/announce";
   import { queryRequired } from "../dom/queryRequired";
   import { es } from "../i18n/es";
   import { Clabe } from "../spei/domain/Clabe";
-  import { InvalidAccountNumberError } from "../spei/domain/InvalidAccountNumberError";
-  import { InvalidAmountError } from "../spei/domain/InvalidAmountError";
-  import { InvalidCardNumberError } from "../spei/domain/InvalidCardNumberError";
-  import { InvalidClabeError } from "../spei/domain/InvalidClabeError";
-  import { InvalidConceptError } from "../spei/domain/InvalidConceptError";
-  import { InvalidEmailError } from "../spei/domain/InvalidEmailError";
-  import { InvalidRfcError } from "../spei/domain/InvalidRfcError";
   import { findBankByCode } from "../spei/domain/banks";
-  import type {
-    DestinationType,
-    OptionalField,
-    OptionalTransferFields,
-    SpeiTransferData,
-    TransferDestination,
-  } from "../spei/domain/SpeiTransferData";
-  import { createOptionalField, OPTIONAL_FIELDS } from "../spei/domain/optionalFields";
-  import { createTransferDestination, isDestinationType } from "../spei/domain/transferDestination";
-  import { clearDraft, loadDraft, saveDraft } from "../spei/application/draftStorage";
+  import { isDestinationType } from "../spei/domain/transferDestination";
+  import { clearFormDraft, loadFormDraft, saveFormDraft } from "../spei/application/draftStorage";
   import { encodeShareLink } from "../spei/application/shareLink";
   import { publishTransfer } from "../spei/application/transferChannel";
+  import {
+    emptyTransferFormValues,
+    formatTransferField,
+    isActiveField,
+    TRANSFER_FORM_FIELDS,
+    validateTransferField,
+    validateTransferForm,
+    type TransferFormErrors,
+    type TransferFormField,
+    type TransferFormValues,
+  } from "../spei/application/validateTransferForm";
 
-  type FieldName = "beneficiaryName" | DestinationType | "bankName" | OptionalField;
-  type FieldErrors = Partial<Record<FieldName, string>>;
-  type ValidationResult = { ok: true; data: SpeiTransferData } | { ok: false; errors: FieldErrors };
-
-  const FIELDS: readonly FieldName[] = [
-    "beneficiaryName",
+  const DRAFT_SAVE_DELAY_MS = 300;
+  const DESTINATION_RELATED_FIELDS: readonly TransferFormField[] = [
     "clabe",
     "card",
     "account",
     "bankName",
-    ...OPTIONAL_FIELDS,
   ];
-
-  const CLABE_ERRORS: Record<InvalidClabeError["reason"], string> = {
-    length: es.errors.clabe.length,
-    non_numeric: es.errors.clabe.nonNumeric,
-    check_digit: es.errors.clabe.checkDigit,
-  };
-  const CARD_ERRORS: Record<InvalidCardNumberError["reason"], string> = {
-    length: es.errors.card.length,
-    non_numeric: es.errors.nonNumeric,
-    checksum: es.errors.card.checksum,
-  };
-  const ACCOUNT_ERRORS: Record<InvalidAccountNumberError["reason"], string> = {
-    length: es.errors.account.length,
-    non_numeric: es.errors.nonNumeric,
-  };
 
   const form = queryRequired<HTMLFormElement>("#transfer-form");
   const output = queryRequired<HTMLElement>("#generated-link");
   const linkInput = queryRequired<HTMLInputElement>("#generatedLink");
   const copyLinkButton = queryRequired<HTMLButtonElement>("#copy-generated-link");
+  const staleNotice = queryRequired<HTMLElement>("#generated-link-stale");
   const clabeInput = queryRequired<HTMLInputElement>("#clabe", form);
   const clabeHint = queryRequired("#clabe-hint", form);
   const draftNotice = queryRequired<HTMLElement>("#draft-notice");
   const clearDraftButton = queryRequired<HTMLButtonElement>("#clear-draft", draftNotice);
 
-  function destinationErrorMessage(error: unknown): string {
-    if (error instanceof InvalidClabeError) return CLABE_ERRORS[error.reason];
-    if (error instanceof InvalidCardNumberError) return CARD_ERRORS[error.reason];
-    if (error instanceof InvalidAccountNumberError) return ACCOUNT_ERRORS[error.reason];
-    throw error;
+  let draftTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function fieldInput(field: TransferFormField): HTMLInputElement {
+    return queryRequired<HTMLInputElement>(`#${field}`, form);
   }
 
-  function optionalFieldErrorMessage(error: unknown): string {
-    if (error instanceof InvalidConceptError) return es.errors.concept.tooLong;
-    if (error instanceof InvalidAmountError) return es.errors.amount.invalid;
-    if (error instanceof InvalidRfcError) return es.errors.rfc.invalid;
-    if (error instanceof InvalidEmailError) return es.errors.email.invalid;
-    throw error;
+  function asFormField(element: EventTarget | null): TransferFormField | undefined {
+    if (!(element instanceof HTMLInputElement)) return undefined;
+    return TRANSFER_FORM_FIELDS.find((field) => field === element.id);
   }
 
-  function selectedDestinationType(): DestinationType {
-    const value = new FormData(form).get("destinationType");
-    return isDestinationType(value) ? value : "clabe";
+  function readValues(): TransferFormValues {
+    const values = emptyTransferFormValues();
+    const type = new FormData(form).get("destinationType");
+    values.destinationType = isDestinationType(type) ? type : "clabe";
+    for (const field of TRANSFER_FORM_FIELDS) values[field] = fieldInput(field).value;
+
+    return values;
   }
 
-  function tryCreateClabe(value: string): Clabe | undefined {
-    try {
-      return Clabe.create(value);
-    } catch (error) {
-      if (!(error instanceof InvalidClabeError)) throw error;
-      return undefined;
-    }
+  function showFieldError(field: TransferFormField, message: string | undefined): void {
+    queryRequired(`#${field}-error`, form).textContent = message ?? "";
+    fieldInput(field).setAttribute("aria-invalid", String(Boolean(message)));
   }
 
-  function bankNameOf(clabe: Clabe): string | undefined {
-    return findBankByCode(clabe.bankCode)?.name;
+  function showErrors(errors: TransferFormErrors, fields = TRANSFER_FORM_FIELDS): void {
+    for (const field of fields) showFieldError(field, errors[field]);
   }
 
   function showDetectedBank(): void {
-    const clabe = tryCreateClabe(clabeInput.value);
-    if (!clabe) {
+    let clabe: Clabe;
+    try {
+      clabe = Clabe.create(clabeInput.value);
+    } catch {
       clabeHint.textContent = "";
       return;
     }
 
-    const bankName = bankNameOf(clabe);
+    const bankName = findBankByCode(clabe.bankCode)?.name;
     clabeHint.textContent = bankName
       ? es.form.clabe.detectedBank.replace("{bankName}", bankName)
       : es.form.clabe.unknownBank;
   }
 
   function showDestinationFields(): void {
-    const type = selectedDestinationType();
+    const type = readValues().destinationType;
     for (const field of form.querySelectorAll<HTMLElement>("[data-show-for]")) {
       field.hidden = !(field.dataset.showFor ?? "").split(" ").includes(type);
     }
   }
 
-  function validate(formData: FormData): ValidationResult {
-    const errors: FieldErrors = {};
-    const type = selectedDestinationType();
-    const beneficiaryName = String(formData.get("beneficiaryName") ?? "").trim();
-    const rawDestination = String(formData.get(type) ?? "").trim();
-
-    if (beneficiaryName === "") errors.beneficiaryName = es.errors.required;
-
-    let destination: TransferDestination | undefined;
-    if (rawDestination === "") {
-      errors[type] = es.errors.required;
-    } else {
-      try {
-        destination = createTransferDestination(type, rawDestination);
-      } catch (error) {
-        errors[type] = destinationErrorMessage(error);
-      }
-    }
-
-    let bankName: string | undefined;
-    if (type === "clabe") {
-      bankName = destination ? bankNameOf(Clabe.create(destination.value)) : undefined;
-    } else {
-      bankName = String(formData.get("bankName") ?? "").trim();
-      if (bankName === "") errors.bankName = es.errors.required;
-    }
-
-    const optionalFields: OptionalTransferFields = {};
-    for (const field of OPTIONAL_FIELDS) {
-      const raw = String(formData.get(field) ?? "").trim();
-      if (raw === "") continue;
-      try {
-        optionalFields[field] = createOptionalField(field, raw);
-      } catch (error) {
-        errors[field] = optionalFieldErrorMessage(error);
-      }
-    }
-
-    if (!destination || Object.keys(errors).length > 0) return { ok: false, errors };
-
-    const data: SpeiTransferData = { beneficiaryName, destination, ...optionalFields };
-    if (bankName) data.bankName = bankName;
-
-    return { ok: true, data };
-  }
-
-  function showErrors(errors: FieldErrors): void {
-    for (const field of FIELDS) {
-      const message = errors[field] ?? "";
-      queryRequired(`#${field}-error`, form).textContent = message;
-      queryRequired<HTMLInputElement>(`#${field}`, form).setAttribute(
-        "aria-invalid",
-        String(message !== ""),
-      );
+  function updateCounters(): void {
+    for (const counter of form.querySelectorAll<HTMLElement>("[data-counter-for]")) {
+      const input = queryRequired<HTMLInputElement>(`#${counter.dataset.counterFor}`, form);
+      counter.textContent = `${input.value.length}/${counter.dataset.max}`;
     }
   }
 
-  function setFieldValue(field: FieldName, value: string | undefined): void {
-    queryRequired<HTMLInputElement>(`#${field}`, form).value = value ?? "";
+  function scheduleDraftSave(): void {
+    clearTimeout(draftTimer);
+    draftTimer = setTimeout(() => saveFormDraft(readValues()), DRAFT_SAVE_DELAY_MS);
   }
 
-  function fillForm(data: SpeiTransferData): void {
-    const { type, value } = data.destination;
+  function markLinkAsStale(): void {
+    if (output.hidden) return;
+
+    output.hidden = true;
+    staleNotice.hidden = false;
+    publishTransfer(null);
+  }
+
+  function hasAnyValue(values: TransferFormValues): boolean {
+    return TRANSFER_FORM_FIELDS.some((field) => values[field].trim() !== "");
+  }
+
+  function fillForm(values: TransferFormValues): void {
     queryRequired<HTMLInputElement>(
-      `input[name="destinationType"][value="${type}"]`,
+      `input[name="destinationType"][value="${values.destinationType}"]`,
       form,
     ).checked = true;
-    setFieldValue("beneficiaryName", data.beneficiaryName);
-    setFieldValue(type, value);
-    if (type !== "clabe") setFieldValue("bankName", data.bankName);
-    for (const field of OPTIONAL_FIELDS) setFieldValue(field, data[field]);
+    for (const field of TRANSFER_FORM_FIELDS) {
+      fieldInput(field).value = formatTransferField(field, values[field]);
+    }
   }
 
   function restoreDraft(): void {
-    const draft = loadDraft();
-    if (!draft) return;
+    const draft = loadFormDraft();
+    if (!draft || !hasAnyValue(draft)) return;
 
     fillForm(draft);
     draftNotice.hidden = false;
   }
 
   function resetForm(): void {
-    clearDraft();
+    clearTimeout(draftTimer);
+    clearFormDraft();
     form.reset();
     draftNotice.hidden = true;
     output.hidden = true;
+    staleNotice.hidden = true;
     showErrors({});
     showDestinationFields();
     showDetectedBank();
+    updateCounters();
     publishTransfer(null);
+    fieldInput("beneficiaryName").focus();
   }
 
-  clabeInput.addEventListener("input", showDetectedBank);
-  clearDraftButton.addEventListener("click", resetForm);
-  form.addEventListener("change", (event) => {
-    if (event.target instanceof HTMLInputElement && event.target.name === "destinationType") {
-      showDestinationFields();
-      showErrors({});
+  function focusFirstInvalid(errors: TransferFormErrors): void {
+    const firstInvalid = TRANSFER_FORM_FIELDS.find((field) => errors[field]);
+    if (firstInvalid) fieldInput(firstInvalid).focus();
+  }
+
+  form.addEventListener("input", (event) => {
+    const field = asFormField(event.target);
+    if (field && fieldInput(field).getAttribute("aria-invalid") === "true") {
+      const message = validateTransferField(field, readValues());
+      if (!message) showFieldError(field, undefined);
     }
+
+    showDetectedBank();
+    updateCounters();
+    markLinkAsStale();
+    scheduleDraftSave();
+  });
+
+  form.addEventListener("focusout", (event) => {
+    const field = asFormField(event.target);
+    if (!field) return;
+
+    const input = fieldInput(field);
+    if (input.value.trim() === "") return;
+
+    input.value = formatTransferField(field, input.value);
+    showFieldError(field, validateTransferField(field, readValues()));
+  });
+
+  form.addEventListener("change", (event) => {
+    if (!(event.target instanceof HTMLInputElement) || event.target.name !== "destinationType") {
+      return;
+    }
+
+    showDestinationFields();
+    const values = readValues();
+    showErrors(
+      {},
+      DESTINATION_RELATED_FIELDS.filter((field) => !isActiveField(field, values)),
+    );
+    markLinkAsStale();
+    scheduleDraftSave();
   });
 
   form.addEventListener("submit", (event) => {
     event.preventDefault();
-    const result = validate(new FormData(form));
+    const result = validateTransferForm(readValues());
 
     if (!result.ok) {
       showErrors(result.errors);
       output.hidden = true;
       publishTransfer(null);
+      focusFirstInvalid(result.errors);
       return;
     }
 
@@ -366,12 +386,19 @@ const destinationOptions: DestinationOption[] = [
     const url = encodeShareLink(result.data, new URL(window.location.origin));
     linkInput.value = url.toString();
     copyLinkButton.dataset.copyValue = url.toString();
+    staleNotice.hidden = true;
     output.hidden = false;
-    saveDraft(result.data);
     publishTransfer({ data: result.data, url });
+
+    announce(es.form.generatedLink.ready);
+    output.scrollIntoView({ block: "start" });
+    linkInput.focus({ preventScroll: true });
   });
+
+  clearDraftButton.addEventListener("click", resetForm);
 
   restoreDraft();
   showDestinationFields();
   showDetectedBank();
+  updateCounters();
 </script>

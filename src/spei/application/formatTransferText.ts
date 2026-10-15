@@ -19,3 +19,7 @@ export function formatTransferText(data: SpeiTransferData): string {
 
   return lines.join("\n");
 }
+
+export function formatShareText(data: SpeiTransferData, url: URL): string {
+  return `${formatTransferText(data)}\n\n${url.toString()}`;
+}

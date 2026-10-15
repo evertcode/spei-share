@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { findBankByCode } from "../../../../src/spei/domain/banks";
+import { findBankByCode, listBanks } from "../../../../src/spei/domain/banks";
 
 describe("findBankByCode", () => {
   it("finds BBVA México by code 012", () => {
@@ -12,5 +12,12 @@ describe("findBankByCode", () => {
 
   it("returns undefined for an unknown code", () => {
     expect(findBankByCode("999")).toBeUndefined();
+  });
+
+  it("lists every bank in the catalog", () => {
+    const banks = listBanks();
+
+    expect(banks).toContainEqual({ code: "012", name: "BBVA México" });
+    expect(banks.every((bank) => findBankByCode(bank.code) === bank)).toBe(true);
   });
 });
