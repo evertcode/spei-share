@@ -189,6 +189,32 @@ test("formats the clabe when leaving the field", async ({ page }) => {
   await expect(page.getByLabel("CLABE interbancaria")).toHaveValue("012 180 00123456789 9");
 });
 
+test("shows the destination as the first row with a primary copy button", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(page.locator("[data-row]").first()).toHaveAttribute("data-row", "destination");
+  await expect(page.getByRole("button", { name: "Copiar CLABE" })).toHaveAttribute(
+    "data-variant",
+    "primary",
+  );
+});
+
+test("shows instructions for the payer", async ({ page }) => {
+  await page.goto(await createLink(page));
+
+  await expect(
+    page.getByText("Copia los datos y transfiere desde la app de tu banco."),
+  ).toBeVisible();
+});
+
+test("shows help for the payer when the link is invalid", async ({ page }) => {
+  await page.goto("/ver#d=corrupted");
+
+  await expect(
+    page.getByText("Pide a quien te lo envió que comparta el enlace completo de nuevo."),
+  ).toBeVisible();
+});
+
 test("shows the invalid link message for a corrupted hash", async ({ page }) => {
   await page.goto("/ver#d=corrupted");
 

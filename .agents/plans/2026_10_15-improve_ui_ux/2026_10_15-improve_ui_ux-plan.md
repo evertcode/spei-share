@@ -17,7 +17,7 @@ implemented_by:
     version: "5.5"
     reasoning_effort: "low"
 
-last_implementation_at: "2026-10-15T00:33:52Z"
+last_implementation_at: "2026-10-15T00:46:36Z"
 has_completed_all_phases: "false"
 ---
 
@@ -154,11 +154,11 @@ Make `/ver` tell the payer what to do and put the destination first.
 ### Public contracts
 
 - Components:
-  - `CopyButton.astro`: new prop `variant: "quiet" | "primary"` (default `quiet`); `primary` is a filled ink button. Accessible names unchanged.
+  - `CopyButton.astro`: new prop `variant: "quiet" | "primary"` (default `quiet`), exposed as `data-variant`; `primary` is a filled ink button that takes the full width on small screens. Accessible names unchanged.
   - `TransferCard.astro`:
     - Row order: destination (headline, `primary` copy button), amount (headline when present), beneficiary, bank, concept, RFC, email.
-    - Instructions line above the rows.
-    - Any decoding or rendering error shows the invalid state (no blank page).
+    - Instructions line above the receipt, inside `#transfer-card` so it hides with it (the receipt shadow moved to an inner wrapper).
+    - Any decoding or rendering error shows the invalid state (no blank page); unexpected errors are logged with `console.error`.
     - Invalid state adds a help line for the payer; valid state adds a quiet "create your own link" prompt below the receipt.
   - `ver.astro`: `<noscript>` message.
 - UI copies:
@@ -172,17 +172,17 @@ Make `/ver` tell the payer what to do and put the destination first.
     - `shows instructions for the payer`
     - `shows help for the payer when the link is invalid`
   - `tests/e2e/noscript.spec.ts`
-    - `explains that javascript is required`
+    - `explains that javascript is required` (asserts the served HTML: with `javaScriptEnabled: false` Chromium still parses `<noscript>` content as raw text)
 
 ### To-do
 
-- [ ] Add the `variant` prop to `CopyButton.astro`.
-- [ ] Reorder rows, highlight destination and amount and add instructions in `TransferCard.astro`.
-- [ ] Catch every error into the invalid state and add the payer help line and the create-your-own prompt.
-- [ ] Add the `<noscript>` message and copies.
-- [ ] Add and update e2e tests.
-- [ ] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
-- [ ] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
+- [x] Add the `variant` prop to `CopyButton.astro`.
+- [x] Reorder rows, highlight destination and amount and add instructions in `TransferCard.astro`.
+- [x] Catch every error into the invalid state and add the payer help line and the create-your-own prompt.
+- [x] Add the `<noscript>` message and copies.
+- [x] Add and update e2e tests.
+- [x] Verify the changes in terms of typechecking, linting and tests using the project's verification command (`npm run verify`). Fix issues if any.
+- [x] STOP. Present the changes to the user for review and suggest commit messages. Do NOT proceed to the next phase until the user explicitly asks.
 
 ## Phase 4: Robust sharing, link previews and print
 
@@ -234,6 +234,6 @@ Announce copy results, handle failures, hide unsupported actions and make links 
 
 # ⏭️ Next step
 
-Implement Phase 3: payer-focused shared page.
+Implement Phase 4: robust sharing, link previews and print.
 
-Ramps in place, the turtle now walks every visitor through the form step by step thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿ 🧭
+Form guided, the turtle now points the payer straight to the CLABE with a big button thanks to [Codely](https://codely.com) 🐢 💨 🔍 ♿ 🧭 👉
